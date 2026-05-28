@@ -15,7 +15,7 @@ export type StoredAgent = {
   credentialPublicKey: string;
 };
 
-const KEY = "corpus.agents.v1";
+const KEY = "fhox.agents.v1";
 
 function isBrowser() {
   return typeof window !== "undefined";
