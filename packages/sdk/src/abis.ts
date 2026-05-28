@@ -1,7 +1,15 @@
-// Curated ABI fragments for the CORPUS contracts. Hand-maintained to keep the SDK tiny.
-// Full Foundry artifacts live in packages/contracts/out.
+// Curated ABI fragments for the FHOX contracts. Hand-maintained to keep the SDK tiny.
+// Full Hardhat artifacts live in packages/contracts/artifacts.
 
-export const corpusFactoryAbi = [
+// InEuint128 is the Fhenix CoFHE encrypted input struct (4 fields from ICofhe.sol)
+const inEuint128Components = [
+  { name: "ctHash", type: "uint256" },
+  { name: "securityZone", type: "uint8" },
+  { name: "utype", type: "uint8" },
+  { name: "signature", type: "bytes" },
+] as const;
+
+export const fhoxFactoryAbi = [
   {
     type: "constructor",
     inputs: [
@@ -27,14 +35,9 @@ export const corpusFactoryAbi = [
           { name: "formedAt", type: "uint64" },
         ],
       },
-      {
-        name: "sp",
-        type: "tuple",
-        components: [
-          { name: "dailyCapUsdc", type: "uint128" },
-          { name: "allowlistOnly", type: "bool" },
-        ],
-      },
+      { name: "encDailyCap", type: "tuple", components: inEuint128Components },
+      { name: "hasDailyCap_", type: "bool" },
+      { name: "allowlistOnly_", type: "bool" },
       { name: "principal_", type: "address" },
       { name: "mediator_", type: "address" },
       { name: "identityMetadataURI", type: "string" },
@@ -46,7 +49,7 @@ export const corpusFactoryAbi = [
   },
   {
     type: "event",
-    name: "CorpusFormed",
+    name: "FhoxFormed",
     inputs: [
       { name: "manager", type: "address", indexed: true },
       { name: "principal", type: "address", indexed: true },
@@ -94,7 +97,7 @@ export const corpusFactoryAbi = [
   { type: "error", name: "ZeroAddress", inputs: [] },
 ] as const;
 
-export const corpusManagerAbi = [
+export const fhoxManagerAbi = [
   // ── writes ────────────────────────────────────────────────────────────────
   {
     type: "function",
@@ -102,9 +105,16 @@ export const corpusManagerAbi = [
     stateMutability: "nonpayable",
     inputs: [
       { name: "counterparty", type: "address" },
-      { name: "amount", type: "uint128" },
+      { name: "encAmount", type: "tuple", components: inEuint128Components },
       { name: "memoHash", type: "bytes32" },
     ],
+    outputs: [{ name: "paymentId", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "executePayment",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "paymentId", type: "uint256" }],
     outputs: [],
   },
   {
@@ -144,14 +154,9 @@ export const corpusManagerAbi = [
     name: "setPolicy",
     stateMutability: "nonpayable",
     inputs: [
-      {
-        name: "sp",
-        type: "tuple",
-        components: [
-          { name: "dailyCapUsdc", type: "uint128" },
-          { name: "allowlistOnly", type: "bool" },
-        ],
-      },
+      { name: "encDailyCap", type: "tuple", components: inEuint128Components },
+      { name: "hasCap_", type: "bool" },
+      { name: "allowlistOnly_", type: "bool" },
     ],
     outputs: [],
   },
@@ -170,12 +175,31 @@ export const corpusManagerAbi = [
     outputs: [],
   },
 
-  // ── reads ─────────────────────────────────────────────────────────────────
+  // ── sealed reads (FHE) ────────────────────────────────────────────────────
+  // Non-view: FHE.allowSender() writes to ACL state. Only callable by principal.
+  // Returns the euint128 handle (bytes32) — decrypt off-chain with @cofhe/sdk.
+  {
+    type: "function",
+    name: "getSealedDailyCap",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [{ name: "handle", type: "bytes32" }],
+  },
+  {
+    type: "function",
+    name: "getSealedTodaySpent",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [{ name: "handle", type: "bytes32" }],
+  },
+
+  // ── public reads ──────────────────────────────────────────────────────────
   { type: "function", name: "principal", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
   { type: "function", name: "mediator", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
   { type: "function", name: "identityTokenId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "treasuryBalance", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
-  { type: "function", name: "todaySpent", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "hasDailyCap", stateMutability: "view", inputs: [], outputs: [{ type: "bool" }] },
+  { type: "function", name: "allowlistOnly", stateMutability: "view", inputs: [], outputs: [{ type: "bool" }] },
   { type: "function", name: "factory", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
   {
     type: "function",
@@ -204,6 +228,19 @@ export const corpusManagerAbi = [
     ],
   },
   { type: "function", name: "nextDisputeId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "nextPaymentId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  {
+    type: "function",
+    name: "pendingPayments",
+    stateMutability: "view",
+    inputs: [{ type: "uint256" }],
+    outputs: [
+      { name: "counterparty", type: "address" },
+      { name: "encActualAmountHandle", type: "bytes32" },
+      { name: "memoHash", type: "bytes32" },
+      { name: "executed", type: "bool" },
+    ],
+  },
   {
     type: "function",
     name: "metadata",
@@ -225,14 +262,14 @@ export const corpusManagerAbi = [
   },
   {
     type: "function",
-    name: "policy",
+    name: "policyView",
     stateMutability: "view",
     inputs: [],
     outputs: [
       {
         type: "tuple",
         components: [
-          { name: "dailyCapUsdc", type: "uint128" },
+          { name: "hasDailyCap", type: "bool" },
           { name: "allowlistOnly", type: "bool" },
         ],
       },
@@ -242,10 +279,19 @@ export const corpusManagerAbi = [
   // ── events ────────────────────────────────────────────────────────────────
   {
     type: "event",
+    name: "PaymentInitiated",
+    inputs: [
+      { name: "paymentId", type: "uint256", indexed: true },
+      { name: "counterparty", type: "address", indexed: true },
+      { name: "memoHash", type: "bytes32", indexed: true },
+    ],
+  },
+  {
+    type: "event",
     name: "PaymentExecuted",
+    // amount intentionally omitted — FHE private
     inputs: [
       { name: "counterparty", type: "address", indexed: true },
-      { name: "amount", type: "uint128", indexed: false },
       { name: "memoHash", type: "bytes32", indexed: true },
     ],
   },
@@ -260,8 +306,9 @@ export const corpusManagerAbi = [
   {
     type: "event",
     name: "PolicyUpdated",
+    // cap value intentionally omitted — FHE private
     inputs: [
-      { name: "dailyCapUsdc", type: "uint128", indexed: false },
+      { name: "hasDailyCap", type: "bool", indexed: false },
       { name: "allowlistOnly", type: "bool", indexed: false },
     ],
   },
@@ -310,13 +357,12 @@ export const corpusManagerAbi = [
     ],
   },
 
-  // ── errors (custom; selector matching for structured errors in SDK) ───────
+  // ── errors ────────────────────────────────────────────────────────────────
   { type: "error", name: "NotFactory", inputs: [] },
   { type: "error", name: "NotPrincipal", inputs: [] },
   { type: "error", name: "NotMediator", inputs: [] },
   { type: "error", name: "EmptyCounterparty", inputs: [] },
   { type: "error", name: "CounterpartyNotAllowed", inputs: [] },
-  { type: "error", name: "DailyCapExceeded", inputs: [] },
   { type: "error", name: "DisputeNotOpen", inputs: [] },
   { type: "error", name: "AwardExceedsClaim", inputs: [] },
   { type: "error", name: "AlreadyInitialized", inputs: [] },
@@ -324,6 +370,8 @@ export const corpusManagerAbi = [
   { type: "error", name: "NotCounterparty", inputs: [] },
   { type: "error", name: "DisputeCooldown", inputs: [] },
   { type: "error", name: "PrincipalMediatorCollision", inputs: [] },
+  { type: "error", name: "PaymentAlreadyExecuted", inputs: [] },
+  { type: "error", name: "PaymentNotFound", inputs: [] },
 ] as const;
 
 export const erc20Abi = [
@@ -374,3 +422,6 @@ export const erc721Abi = [
     outputs: [],
   },
 ] as const;
+
+// re-export for downstream use
+export { inEuint128Components };
