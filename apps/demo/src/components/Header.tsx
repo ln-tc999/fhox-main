@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { arcTestnet } from "@corpus/sdk";
+import { fhenixNitrogen } from "@fhox/sdk";
 
 export function Header() {
   const { address, isConnected, connector, chainId } = useAccount();
@@ -9,11 +9,11 @@ export function Header() {
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
   const injected = connectors.find((c) => c.id === "injected");
-  const wrongChain = isConnected && chainId !== arcTestnet.id;
+  const wrongChain = isConnected && chainId !== fhenixNitrogen.id;
 
   const switchToArc = async () => {
     try {
-      await switchChain({ chainId: arcTestnet.id });
+      await switchChain({ chainId: fhenixNitrogen.id });
     } catch {
       // Chain not added yet — request MetaMask to add it
       try {
@@ -26,15 +26,15 @@ export function Header() {
           params: [
             {
               chainId: "0x4cef52",
-              chainName: "Arc Testnet",
+              chainName: "Fhenix Nitrogen",
               nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 18 },
-              rpcUrls: ["https://rpc.testnet.arc.network"],
-              blockExplorerUrls: ["https://testnet.arcscan.app"],
+              rpcUrls: ["https://api.nitrogen.fhenix.zone"],
+              blockExplorerUrls: ["https://explorer.nitrogen.fhenix.zone"],
             },
           ],
         });
       } catch (e) {
-        console.error("Failed to add Arc Testnet", e);
+        console.error("Failed to add Fhenix Nitrogen", e);
       }
     }
   };
@@ -44,7 +44,7 @@ export function Header() {
       <div className="flex items-baseline gap-3">
         <span className="serif text-2xl tracking-tight">CORPUS</span>
         <span className="text-xs uppercase tracking-widest text-ink/50">
-          legal bodies for agents · arc testnet
+          legal bodies for agents · fhenix nitrogen
         </span>
       </div>
       <div className="text-sm">
@@ -60,7 +60,7 @@ export function Header() {
             className="px-4 py-2 bg-red-700 text-white hover:bg-red-800 transition"
             onClick={switchToArc}
           >
-            Switch to Arc Testnet
+            Switch to Fhenix Nitrogen
           </button>
         ) : (
           <div className="flex items-center gap-4 font-mono text-xs">
