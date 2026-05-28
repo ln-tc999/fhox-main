@@ -67,10 +67,10 @@ function PassportLanyardImpl(props: LanyardProps) {
           // context is gone permanently.
           const onLost = (e: Event) => {
             e.preventDefault();
-            console.warn("[corpus] WebGL context lost; awaiting restore");
+            console.warn("[fhox] WebGL context lost; awaiting restore");
           };
           const onRestored = () => {
-            console.info("[corpus] WebGL context restored; resuming render");
+            console.info("[fhox] WebGL context restored; resuming render");
             invalidate();
           };
           canvas.addEventListener("webglcontextlost", onLost, false);
@@ -406,7 +406,7 @@ function usePassportTexture({
     // footer
     ctx.fillStyle = "rgba(200,164,93,0.6)";
     ctx.font = "300 11px 'Cormorant Garamond', Garamond, serif";
-    ctx.fillText("ARC TESTNET · CHAIN 5042002", W / 2, H - 70);
+    ctx.fillText("FHENIX NITROGEN · CHAIN 8008148", W / 2, H - 70);
     ctx.fillStyle = "rgba(244,239,231,0.5)";
     ctx.font = "300 10px ui-monospace, Menlo, monospace";
     ctx.fillText("ERC-8004 · WYOMING · CORPUS V0.1", W / 2, H - 50);
