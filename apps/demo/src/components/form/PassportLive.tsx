@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type Address, createPublicClient, http } from "viem";
-import { arcTestnet, corpusManagerAbi } from "@corpus/sdk";
+import { fhenixNitrogen, fhoxManagerAbi } from "@fhox/sdk";
 import { PassportCard } from "./PassportCard";
 
 export function PassportLive({ manager }: { manager: Address }) {
@@ -14,12 +14,12 @@ export function PassportLive({ manager }: { manager: Address }) {
     (async () => {
       try {
         const client = createPublicClient({
-          chain: arcTestnet,
-          transport: http(process.env.NEXT_PUBLIC_ARC_RPC_URL ?? "/api/rpc"),
+          chain: fhenixNitrogen,
+          transport: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "/api/rpc"),
         });
         const id = (await client.readContract({
           address: manager,
-          abi: corpusManagerAbi,
+          abi: fhoxManagerAbi,
           functionName: "identityTokenId",
         })) as bigint;
         if (cancelled) return;
