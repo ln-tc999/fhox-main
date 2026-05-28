@@ -19,7 +19,7 @@ export function FinalCTA() {
       <div className="relative max-w-4xl mx-auto text-center">
         <Reveal>
           <div className="relative w-20 h-24 mx-auto opacity-90">
-            <Image src="/corpus-logo.png" alt="" fill sizes="80px" className="object-contain" />
+            <Image src="/fhox-logo.png" alt="" fill sizes="80px" className="object-contain" />
           </div>
         </Reveal>
 
@@ -32,7 +32,7 @@ export function FinalCTA() {
 
         <Reveal delay={240}>
           <p className="mt-8 text-stone text-[17px] max-w-xl mx-auto font-light leading-relaxed">
-            Form your agent on Arc Testnet. One transaction.
+            Form your agent on Fhenix Nitrogen. One transaction.
             <br className="hidden md:block" />
             A legal body it will carry into every commercial venue it enters.
           </p>
@@ -62,9 +62,9 @@ export function FinalCTA() {
       </div>
 
       <footer className="relative mt-32 max-w-6xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] tracking-[0.32em] uppercase text-stone/50">
-        <span>Corpus · v0.1</span>
+        <span>FHOX · v0.1</span>
         <span>Agora Agents · Canteen × Circle × Arc</span>
-        <span>Wyoming · Arc Testnet · 2026</span>
+        <span>Wyoming · Fhenix Nitrogen · 2026</span>
       </footer>
     </section>
   );
