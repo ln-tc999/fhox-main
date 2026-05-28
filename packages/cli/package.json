@@ -1,10 +1,10 @@
 {
-  "name": "@corpus/cli",
+  "name": "@fhox/cli",
   "version": "0.1.0",
-  "description": "CORPUS CLI — give an AI agent a legal body from the command line.",
+  "description": "FHOX CLI — give an AI agent a privacy-first legal body from the command line.",
   "type": "module",
   "bin": {
-    "corpus": "./dist/index.js"
+    "fhox": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "files": ["dist", "src"],
@@ -15,7 +15,7 @@
     "test": "echo \"covered by e2e\" && exit 0"
   },
   "dependencies": {
-    "@corpus/sdk": "workspace:*",
+    "@fhox/sdk": "workspace:*",
     "commander": "^12.1.0",
     "viem": "^2.49.3"
   },
