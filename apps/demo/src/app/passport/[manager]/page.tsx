@@ -55,7 +55,7 @@ export default function PassportPage({
       </section>
 
       <footer className="relative z-10 border-t border-gold/10 px-8 md:px-16 py-7 text-[10px] tracking-[0.32em] uppercase text-stone/50 flex flex-col md:flex-row gap-3 md:justify-between">
-        <span>Corpus · v0.1 · Arc Testnet</span>
+        <span>FHOX · v0.1 · Fhenix Nitrogen</span>
         <span>Agora Agents · Canteen × Circle × Arc</span>
       </footer>
     </main>
