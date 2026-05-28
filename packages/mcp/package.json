@@ -1,10 +1,10 @@
 {
-  "name": "@corpus/mcp",
+  "name": "@fhox/mcp",
   "version": "0.1.0",
-  "description": "CORPUS MCP server — expose CORPUS as MCP tools to any LLM agent.",
+  "description": "FHOX MCP server — expose FHOX privacy-first entity management as MCP tools to any LLM agent.",
   "type": "module",
   "bin": {
-    "corpus-mcp": "./dist/index.js"
+    "fhox-mcp": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "files": ["dist", "src"],
@@ -15,7 +15,7 @@
     "test": "echo \"covered by e2e\" && exit 0"
   },
   "dependencies": {
-    "@corpus/sdk": "workspace:*",
+    "@fhox/sdk": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.0.4",
     "viem": "^2.49.3",
     "zod": "^3.23.8"
