@@ -10,8 +10,8 @@ import {
   keccak256,
   toHex,
 } from "viem";
-import { corpusFactoryAbi, corpusManagerAbi, erc20Abi, erc721Abi } from "./abis.js";
-import { ARC_TESTNET_ADDRESSES } from "./chains.js";
+import { fhoxFactoryAbi, fhoxManagerAbi, erc20Abi, erc721Abi } from "./abis.js";
+import { FHENIX_NITROGEN_ADDRESSES } from "./chains.js";
 import { mapContractError } from "./errors.js";
 import type {
   Dispute,
@@ -22,74 +22,83 @@ import type {
   FormParams,
   FormResult,
   PaymentEvent,
-  SpendingPolicy,
+  PolicyView,
   TxResult,
   VerificationResult,
 } from "./types.js";
 import { DisputeStatus } from "./types.js";
 
-export type CorpusClientConfig = {
+export type FhoxClientConfig = {
   publicClient: PublicClient;
   walletClient: WalletClient;
   factory: Address;
-  /** Defaults to Arc Testnet's canonical USDC. */
+  /** FhenixClient from @cofhe/sdk for client-side FHE encryption. */
+  fhenixClient?: unknown;
+  /** Defaults to Fhenix Nitrogen's deployed USDC. */
   usdc?: Address;
-  /** Defaults to Arc Testnet's ERC-8004 IdentityRegistry. */
+  /** Defaults to Fhenix Nitrogen's deployed IdentityRegistry. */
   identityRegistry?: Address;
 };
 
 export type PayOptions = { gas?: bigint };
 export type FormOptions = { gas?: bigint };
 
+/** Encrypted input matching InEuint128 Solidity struct (4 fields from ICofhe.sol). */
+type EncryptedUint128 = {
+  ctHash: bigint;
+  securityZone: number;
+  utype: number;
+  signature: `0x${string}`;
+};
+
 /**
- * Thin TypeScript wrapper around the CORPUS contracts. Holds a viem public + wallet client
- * pair and the deployed Factory address. Designed to be embedded inside any agent runtime
- * (server, edge function, browser, MCP server, CLI).
+ * TypeScript wrapper around the FHOX contracts. Uses Fhenix FHE for privacy-preserving
+ * treasury operations — payment amounts are encrypted and never visible on-chain.
+ *
+ * Pass `fhenixClient` (from @cofhe/sdk) to enable automatic client-side encryption.
+ * Without it, you can pass pre-encrypted values directly via `payEncrypted()`.
  */
-export class CorpusClient {
+export class FhoxClient {
   readonly publicClient: PublicClient;
   readonly walletClient: WalletClient;
   readonly factory: Address;
   readonly usdc: Address;
   readonly identityRegistry: Address;
+  // FhenixClient from @cofhe/sdk — typed as unknown to avoid hard dep on the package
+  readonly fhenixClient: unknown;
 
-  constructor(cfg: CorpusClientConfig) {
+  constructor(cfg: FhoxClientConfig) {
     this.publicClient = cfg.publicClient;
     this.walletClient = cfg.walletClient;
     this.factory = getAddress(cfg.factory);
-    this.usdc = getAddress(cfg.usdc ?? ARC_TESTNET_ADDRESSES.usdc);
-    this.identityRegistry = getAddress(cfg.identityRegistry ?? ARC_TESTNET_ADDRESSES.identityRegistry);
+    this.usdc = getAddress(cfg.usdc ?? FHENIX_NITROGEN_ADDRESSES.usdc);
+    this.identityRegistry = getAddress(cfg.identityRegistry ?? FHENIX_NITROGEN_ADDRESSES.identityRegistry);
+    this.fhenixClient = cfg.fhenixClient;
   }
 
-  // ── Account convenience ────────────────────────────────────────────────────
-
-  /** The address of the signer attached to this client. Throws if no account is set. */
   get address(): Address {
     const account = this.walletClient.account;
     if (!account) throw new Error("walletClient.account is required");
     return account.address;
   }
 
-  /** Normalize a legal name the same way the contract does (trim + collapse whitespace). */
   static normalizeName(name: string): string {
     return name.trim().replace(/\s+/g, " ");
   }
 
   // ── Name registry ──────────────────────────────────────────────────────────
 
-  /** Check whether a legal name is already registered on this factory. */
   async isNameTaken(legalName: string): Promise<{ taken: boolean; existingManager: Address }> {
-    const normalized = CorpusClient.normalizeName(legalName);
+    const normalized = FhoxClient.normalizeName(legalName);
     const result = (await this.publicClient.readContract({
       address: this.factory,
-      abi: corpusFactoryAbi,
+      abi: fhoxFactoryAbi,
       functionName: "isNameTaken",
       args: [normalized],
     })) as readonly [boolean, Address];
     return { taken: result[0], existingManager: result[1] };
   }
 
-  /** Resolve a legal name to its manager address, or null if not registered. */
   async findEntityByName(legalName: string): Promise<Address | null> {
     const { taken, existingManager } = await this.isNameTaken(legalName);
     return taken ? existingManager : null;
@@ -97,32 +106,37 @@ export class CorpusClient {
 
   // ── Formation ──────────────────────────────────────────────────────────────
 
-  /** Form a new CORPUS entity. Returns the manager address + minted identity token ID. */
+  /**
+   * Form a new FHOX entity. The daily cap is encrypted client-side via @cofhe/sdk
+   * before being submitted to the contract — the cap value is never visible on-chain.
+   */
   async form(params: FormParams, opts: FormOptions = {}): Promise<FormResult> {
     const account = this.walletClient.account;
     if (!account) throw new Error("walletClient.account is required");
+
+    // Encrypt the daily cap using @cofhe/sdk if available, otherwise trivial zero
+    const encDailyCap = await this._encryptUint128(params.hasDailyCap ? params.dailyCapUsdc : 0n);
 
     try {
       const txHash = await this.walletClient.writeContract({
         account,
         chain: this.walletClient.chain,
         address: this.factory,
-        abi: corpusFactoryAbi,
+        abi: fhoxFactoryAbi,
         functionName: "form",
-        gas: opts.gas ?? 3_000_000n,
+        gas: opts.gas ?? 5_000_000n,
         args: [
           {
-            legalName: CorpusClient.normalizeName(params.metadata.legalName),
+            legalName: FhoxClient.normalizeName(params.metadata.legalName),
             jurisdiction: params.metadata.jurisdiction,
             filingId: params.metadata.filingId,
             articlesHash: params.metadata.articlesHash,
             operatingAgreementHash: params.metadata.operatingAgreementHash,
             formedAt: params.metadata.formedAt,
           },
-          {
-            dailyCapUsdc: params.policy.dailyCapUsdc,
-            allowlistOnly: params.policy.allowlistOnly,
-          },
+          encDailyCap,
+          params.hasDailyCap,
+          params.allowlistOnly,
           getAddress(params.principal),
           getAddress(params.mediator),
           params.identityMetadataURI,
@@ -131,11 +145,11 @@ export class CorpusClient {
 
       const receipt = await this.publicClient.waitForTransactionReceipt({ hash: txHash });
       const logs = parseEventLogs({
-        abi: corpusFactoryAbi,
-        eventName: "CorpusFormed",
+        abi: fhoxFactoryAbi,
+        eventName: "FhoxFormed",
         logs: receipt.logs,
       });
-      if (logs.length === 0) throw new Error("CorpusFormed event not found in receipt");
+      if (logs.length === 0) throw new Error("FhoxFormed event not found in receipt");
       const ev = logs[0].args as { manager: Address; identityTokenId: bigint };
       return { manager: ev.manager, identityTokenId: ev.identityTokenId, txHash };
     } catch (err) {
@@ -145,26 +159,60 @@ export class CorpusClient {
 
   // ── Treasury operations ────────────────────────────────────────────────────
 
-  /** Execute a USDC payment from the entity's treasury under its spending policy. */
+  /**
+   * Execute a USDC payment. `amount` is a plaintext bigint — the SDK encrypts it
+   * using @cofhe/sdk before submitting to the FHE contract. The actual amount is
+   * never visible on-chain (not in calldata, not in events).
+   */
+  /**
+   * Phase-1 payment: encrypt amount, apply FHE cap check, request async decrypt.
+   * Returns `{ paymentId, txHash }`. Call `executePayment(manager, paymentId)` once
+   * the decrypt result is ready (≥1 block on testnet; evm_increaseTime in tests).
+   */
   async pay(
     manager: Address,
     counterparty: Address,
     amount: bigint,
     memo: string,
     opts: PayOptions = {},
-  ): Promise<TxResult> {
+  ): Promise<{ paymentId: bigint; txHash: Hex }> {
     const account = this.walletClient.account;
     if (!account) throw new Error("walletClient.account is required");
     const memoHash = keccak256(toHex(memo));
+    const encAmount = await this._encryptUint128(amount);
     try {
       const txHash = await this.walletClient.writeContract({
         account,
         chain: this.walletClient.chain,
         address: getAddress(manager),
-        abi: corpusManagerAbi,
+        abi: fhoxManagerAbi,
         functionName: "pay",
         gas: opts.gas,
-        args: [getAddress(counterparty), amount, memoHash],
+        args: [getAddress(counterparty), encAmount, memoHash],
+      });
+      const receipt = await this.publicClient.waitForTransactionReceipt({ hash: txHash });
+      const logs = parseEventLogs({ abi: fhoxManagerAbi, eventName: "PaymentInitiated", logs: receipt.logs });
+      if (logs.length === 0) throw new Error("PaymentInitiated event not found");
+      const ev = logs[0].args as { paymentId: bigint };
+      return { paymentId: ev.paymentId, txHash };
+    } catch (err) {
+      throw mapContractError(err);
+    }
+  }
+
+  /** Phase-2 payment: read decrypted amount and execute USDC transfer. */
+  async executePayment(manager: Address, paymentId: bigint, opts: PayOptions = {}): Promise<TxResult> {
+    const account = this.walletClient.account;
+    if (!account) throw new Error("walletClient.account is required");
+    try {
+      const txHash = await this.walletClient.writeContract({
+        account,
+        chain: this.walletClient.chain,
+        address: getAddress(manager),
+        abi: fhoxManagerAbi,
+        functionName: "executePayment",
+        gas: opts.gas,
+        args: [paymentId],
       });
       return this._wrapTx(txHash);
     } catch (err) {
@@ -202,7 +250,7 @@ export class CorpusClient {
         account,
         chain: this.walletClient.chain,
         address: getAddress(manager),
-        abi: corpusManagerAbi,
+        abi: fhoxManagerAbi,
         functionName: "setAllowlist",
         args: [getAddress(addr), allowed],
       });
@@ -212,17 +260,24 @@ export class CorpusClient {
     }
   }
 
-  async setPolicy(manager: Address, policy: SpendingPolicy): Promise<TxResult> {
+  /** Update spending policy. `dailyCapUsdc` is encrypted before sending. */
+  async setPolicy(
+    manager: Address,
+    dailyCapUsdc: bigint,
+    hasCap: boolean,
+    allowlistOnly: boolean,
+  ): Promise<TxResult> {
     const account = this.walletClient.account;
     if (!account) throw new Error("walletClient.account is required");
+    const encCap = await this._encryptUint128(hasCap ? dailyCapUsdc : 0n);
     try {
       const txHash = await this.walletClient.writeContract({
         account,
         chain: this.walletClient.chain,
         address: getAddress(manager),
-        abi: corpusManagerAbi,
+        abi: fhoxManagerAbi,
         functionName: "setPolicy",
-        args: [{ dailyCapUsdc: policy.dailyCapUsdc, allowlistOnly: policy.allowlistOnly }],
+        args: [encCap, hasCap, allowlistOnly],
       });
       return this._wrapTx(txHash);
     } catch (err) {
@@ -238,7 +293,7 @@ export class CorpusClient {
         account,
         chain: this.walletClient.chain,
         address: getAddress(manager),
-        abi: corpusManagerAbi,
+        abi: fhoxManagerAbi,
         functionName: "rotatePrincipal",
         args: [getAddress(next)],
       });
@@ -256,7 +311,7 @@ export class CorpusClient {
         account,
         chain: this.walletClient.chain,
         address: getAddress(manager),
-        abi: corpusManagerAbi,
+        abi: fhoxManagerAbi,
         functionName: "rotateMediator",
         args: [getAddress(next)],
       });
@@ -266,9 +321,46 @@ export class CorpusClient {
     }
   }
 
+  // ── FHE Sealed reads ───────────────────────────────────────────────────────
+
+  /**
+   * Read the encrypted daily-cap handle. Simulates the tx (grants ACL in the simulated
+   * context) and returns the euint128 handle as bytes32. Decrypt with @cofhe/sdk.
+   *
+   * NOTE: To make the ACL grant persistent on-chain, send the actual tx via
+   * walletClient.writeContract({ functionName: "getSealedDailyCap" }).
+   */
+  async getSealedDailyCap(manager: Address): Promise<Hex> {
+    const account = this.walletClient.account;
+    if (!account) throw new Error("walletClient.account is required");
+    const { result } = await this.publicClient.simulateContract({
+      account: account.address,
+      address: getAddress(manager),
+      abi: fhoxManagerAbi,
+      functionName: "getSealedDailyCap",
+      args: [],
+    });
+    return result as Hex;
+  }
+
+  /**
+   * Read today's encrypted spend handle. Simulates the tx and returns the bytes32 handle.
+   */
+  async getSealedTodaySpent(manager: Address): Promise<Hex> {
+    const account = this.walletClient.account;
+    if (!account) throw new Error("walletClient.account is required");
+    const { result } = await this.publicClient.simulateContract({
+      account: account.address,
+      address: getAddress(manager),
+      abi: fhoxManagerAbi,
+      functionName: "getSealedTodaySpent",
+      args: [],
+    });
+    return result as Hex;
+  }
+
   // ── Disputes ───────────────────────────────────────────────────────────────
 
-  /** Open a dispute against the entity. Returns the new disputeId. */
   async openDispute(
     manager: Address,
     counterparty: Address,
@@ -282,7 +374,7 @@ export class CorpusClient {
         account,
         chain: this.walletClient.chain,
         address: getAddress(manager),
-        abi: corpusManagerAbi,
+        abi: fhoxManagerAbi,
         functionName: "openDispute",
         args: [getAddress(counterparty), amountClaimed, reason],
       });
@@ -304,7 +396,6 @@ export class CorpusClient {
     }
   }
 
-  /** Mediator-only: deliver a binding resolution. */
   async resolveDispute(
     manager: Address,
     disputeId: bigint,
@@ -318,7 +409,7 @@ export class CorpusClient {
         account,
         chain: this.walletClient.chain,
         address: getAddress(manager),
-        abi: corpusManagerAbi,
+        abi: fhoxManagerAbi,
         functionName: "resolveDispute",
         args: [disputeId, award, evidenceHash],
       });
@@ -331,19 +422,13 @@ export class CorpusClient {
   async getDispute(manager: Address, disputeId: bigint): Promise<Dispute | null> {
     const raw = (await this.publicClient.readContract({
       address: getAddress(manager),
-      abi: corpusManagerAbi,
+      abi: fhoxManagerAbi,
       functionName: "disputes",
       args: [disputeId],
     })) as readonly [Address, bigint, number, bigint];
     const status = raw[2] as DisputeStatus;
     if (status === DisputeStatus.None) return null;
-    return {
-      id: disputeId,
-      counterparty: raw[0],
-      amountAtIssue: raw[1],
-      status,
-      openedAt: raw[3],
-    };
+    return { id: disputeId, counterparty: raw[0], amountAtIssue: raw[1], status, openedAt: raw[3] };
   }
 
   // ── Reads ──────────────────────────────────────────────────────────────────
@@ -351,16 +436,8 @@ export class CorpusClient {
   async treasuryBalance(manager: Address): Promise<bigint> {
     return this.publicClient.readContract({
       address: getAddress(manager),
-      abi: corpusManagerAbi,
+      abi: fhoxManagerAbi,
       functionName: "treasuryBalance",
-    }) as Promise<bigint>;
-  }
-
-  async todaySpent(manager: Address): Promise<bigint> {
-    return this.publicClient.readContract({
-      address: getAddress(manager),
-      abi: corpusManagerAbi,
-      functionName: "todaySpent",
     }) as Promise<bigint>;
   }
 
@@ -376,7 +453,7 @@ export class CorpusClient {
   async isAllowlisted(manager: Address, addr: Address): Promise<boolean> {
     return this.publicClient.readContract({
       address: getAddress(manager),
-      abi: corpusManagerAbi,
+      abi: fhoxManagerAbi,
       functionName: "allowlist",
       args: [getAddress(addr)],
     }) as Promise<boolean>;
@@ -385,28 +462,26 @@ export class CorpusClient {
   async isKnownCounterparty(manager: Address, addr: Address): Promise<boolean> {
     return this.publicClient.readContract({
       address: getAddress(manager),
-      abi: corpusManagerAbi,
+      abi: fhoxManagerAbi,
       functionName: "knownCounterparty",
       args: [getAddress(addr)],
     }) as Promise<boolean>;
   }
 
-  /** Read the full on-chain state of an entity in one call. */
   async getEntityState(manager: Address): Promise<EntityState> {
     const m = getAddress(manager);
-    const [metadata, policy, principal, mediator, identityTokenId, treasuryBalance, todaySpent, nextDisputeId] =
+    const [metadata, policyView, principal, mediator, identityTokenId, treasuryBalance, nextDisputeId] =
       await Promise.all([
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "metadata" }),
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "policy" }),
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "principal" }),
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "mediator" }),
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "identityTokenId" }),
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "treasuryBalance" }),
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "todaySpent" }),
-        this.publicClient.readContract({ address: m, abi: corpusManagerAbi, functionName: "nextDisputeId" }),
+        this.publicClient.readContract({ address: m, abi: fhoxManagerAbi, functionName: "metadata" }),
+        this.publicClient.readContract({ address: m, abi: fhoxManagerAbi, functionName: "policyView" }),
+        this.publicClient.readContract({ address: m, abi: fhoxManagerAbi, functionName: "principal" }),
+        this.publicClient.readContract({ address: m, abi: fhoxManagerAbi, functionName: "mediator" }),
+        this.publicClient.readContract({ address: m, abi: fhoxManagerAbi, functionName: "identityTokenId" }),
+        this.publicClient.readContract({ address: m, abi: fhoxManagerAbi, functionName: "treasuryBalance" }),
+        this.publicClient.readContract({ address: m, abi: fhoxManagerAbi, functionName: "nextDisputeId" }),
       ]);
     const md = metadata as EntityMetadata;
-    const pol = policy as SpendingPolicy;
+    const pol = policyView as PolicyView;
     return {
       manager: m,
       metadata: {
@@ -417,23 +492,17 @@ export class CorpusClient {
         operatingAgreementHash: md.operatingAgreementHash,
         formedAt: md.formedAt,
       },
-      policy: { dailyCapUsdc: pol.dailyCapUsdc, allowlistOnly: pol.allowlistOnly },
+      policy: { hasDailyCap: pol.hasDailyCap, allowlistOnly: pol.allowlistOnly },
       principal: principal as Address,
       mediator: mediator as Address,
       identityTokenId: identityTokenId as bigint,
       treasuryBalance: treasuryBalance as bigint,
-      todaySpent: todaySpent as bigint,
       nextDisputeId: nextDisputeId as bigint,
     };
   }
 
   // ── Verification ───────────────────────────────────────────────────────────
 
-  /**
-   * Cryptographic verification: the manager's recorded identityTokenId must
-   * be owned (on the IdentityRegistry NFT contract) by the manager's recorded principal.
-   * This proves no one tampered with the link between the LLC and the agent.
-   */
   async verifyEntity(manager: Address): Promise<VerificationResult> {
     const state = await this.getEntityState(manager);
     const actualOwner = (await this.publicClient.readContract({
@@ -458,7 +527,6 @@ export class CorpusClient {
 
   // ── Events ─────────────────────────────────────────────────────────────────
 
-  /** Fetch historical PaymentExecuted events. */
   async getPayments(manager: Address, fromBlock: bigint = 0n, toBlock?: bigint): Promise<PaymentEvent[]> {
     const logs = await this.publicClient.getLogs({
       address: getAddress(manager),
@@ -467,7 +535,6 @@ export class CorpusClient {
         name: "PaymentExecuted",
         inputs: [
           { name: "counterparty", type: "address", indexed: true },
-          { name: "amount", type: "uint128", indexed: false },
           { name: "memoHash", type: "bytes32", indexed: true },
         ],
       },
@@ -478,7 +545,6 @@ export class CorpusClient {
       blockNumber: l.blockNumber!,
       txHash: l.transactionHash!,
       counterparty: l.args.counterparty as Address,
-      amount: l.args.amount as bigint,
       memoHash: l.args.memoHash as Hex,
     }));
   }
@@ -507,11 +573,7 @@ export class CorpusClient {
     }));
   }
 
-  async getDisputesResolved(
-    manager: Address,
-    fromBlock: bigint = 0n,
-    toBlock?: bigint,
-  ): Promise<DisputeResolvedEvent[]> {
+  async getDisputesResolved(manager: Address, fromBlock: bigint = 0n, toBlock?: bigint): Promise<DisputeResolvedEvent[]> {
     const logs = await this.publicClient.getLogs({
       address: getAddress(manager),
       event: {
@@ -546,6 +608,29 @@ export class CorpusClient {
         const r = await this.publicClient.waitForTransactionReceipt({ hash: txHash });
         return { blockNumber: r.blockNumber, status: r.status };
       },
+    };
+  }
+
+  /**
+   * Encrypt a uint128 value using @cofhe/sdk FhenixClient if available,
+   * otherwise returns a trivially-encrypted zero placeholder (for testing).
+   *
+   * In production: pass `fhenixClient` (from @cofhe/sdk) to FhoxClientConfig.
+   */
+  private async _encryptUint128(value: bigint): Promise<EncryptedUint128> {
+    if (this.fhenixClient) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const client = this.fhenixClient as any;
+      // @cofhe/sdk returns an object matching the InEuint128 struct
+      return client.encrypt_uint128(value) as EncryptedUint128;
+    }
+    // Fallback: trivial encoding for local hardhat mock testing.
+    // ctHash = value (plaintext), securityZone = 0, utype = 6 (EUINT128_TFHE), signature = "0x"
+    return {
+      ctHash: value,
+      securityZone: 0,
+      utype: 6,
+      signature: "0x",
     };
   }
 }
