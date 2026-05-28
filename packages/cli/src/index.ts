@@ -18,8 +18,8 @@ import { setJsonMode } from "./output.js";
 const program = new Command();
 
 program
-  .name("corpus")
-  .description("CORPUS CLI — onchain legal personhood for AI agents")
+  .name("fhox")
+  .description("FHOX CLI — privacy-first onchain legal personhood for AI agents on Fhenix")
   .version("0.1.0")
   .option("--json", "emit machine-readable JSON instead of human-readable output")
   .hook("preAction", (thisCommand) => {
