@@ -1,8 +1,8 @@
-export { CorpusClient, type CorpusClientConfig, type PayOptions, type FormOptions } from "./client.js";
-export { arcTestnet, ARC_TESTNET_ADDRESSES } from "./chains.js";
+export { FhoxClient, type FhoxClientConfig, type PayOptions, type FormOptions } from "./client.js";
+export { fhenixNitrogen, FHENIX_NITROGEN_ADDRESSES } from "./chains.js";
 export {
   type EntityMetadata,
-  type SpendingPolicy,
+  type PolicyView,
   type FormParams,
   type FormResult,
   type Dispute,
@@ -12,17 +12,17 @@ export {
   type DisputeOpenedEvent,
   type DisputeResolvedEvent,
   type TxResult,
+  type FhePermission,
   DisputeStatus,
 } from "./types.js";
-export { corpusFactoryAbi, corpusManagerAbi, erc20Abi, erc721Abi } from "./abis.js";
+export { fhoxFactoryAbi, fhoxManagerAbi, erc20Abi, erc721Abi } from "./abis.js";
 export {
-  CorpusError,
+  FhoxError,
   NameTakenError,
   EmptyNameError,
   NotPrincipalError,
   NotMediatorError,
   CounterpartyNotAllowedError,
-  DailyCapExceededError,
   DisputeNotOpenError,
   AwardExceedsClaimError,
   NotCounterpartyError,
@@ -31,4 +31,4 @@ export {
   ZeroAddressError,
   mapContractError,
 } from "./errors.js";
-export { type Signer, privateKeySigner, arcTestnetWalletClient } from "./signer.js";
+export { type Signer, privateKeySigner, fhenixWalletClient } from "./signer.js";
