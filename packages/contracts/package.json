@@ -1,13 +1,29 @@
 {
-  "name": "@corpus/contracts",
+  "name": "@fhox/contracts",
   "version": "0.1.0",
   "private": true,
-  "description": "CORPUS smart contracts — Wyoming DAO LLC algorithmic manager, treasury, dispute mediation on Arc.",
+  "description": "FHOX smart contracts — privacy-first Wyoming DAO LLC manager with Fhenix CoFHE encrypted treasury.",
   "scripts": {
     "build": "forge build",
     "test": "forge test -vv",
     "test:gas": "forge test --gas-report",
     "fmt": "forge fmt",
-    "deploy:arc-testnet": "forge script script/Deploy.s.sol:Deploy --rpc-url $ARC_TESTNET_RPC_URL --broadcast --slow"
+    "hardhat:build": "npx hardhat compile",
+    "hardhat:test": "npx hardhat test",
+    "deploy:fhenix-nitrogen": "npx hardhat run scripts/deploy.ts --network fhenixNitrogen",
+    "deploy:localfhenix": "npx hardhat run scripts/deploy.ts --network localfhenix"
+  },
+  "dependencies": {
+    "@fhenixprotocol/cofhe-contracts": "^0.1.3",
+    "@openzeppelin/contracts": "^5.0.0"
+  },
+  "devDependencies": {
+    "@cofhe/hardhat-plugin": "^0.5.2",
+    "@cofhe/mock-contracts": "^0.5.2",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0",
+    "typescript": "^5.6.3",
+    "ts-node": "^10.9.2"
   }
 }
