@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { arcTestnet } from "@corpus/sdk";
+import { fhenixNitrogen } from "@fhox/sdk";
 
 export function FormHeader() {
   const { address, isConnected, connector, chainId } = useAccount();
@@ -11,11 +11,11 @@ export function FormHeader() {
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
   const injected = connectors.find((c) => c.id === "injected");
-  const wrongChain = isConnected && chainId !== arcTestnet.id;
+  const wrongChain = isConnected && chainId !== fhenixNitrogen.id;
 
   const switchToArc = async () => {
     try {
-      await switchChain({ chainId: arcTestnet.id });
+      await switchChain({ chainId: fhenixNitrogen.id });
     } catch {
       try {
         const provider = (await connector?.getProvider()) as
@@ -27,10 +27,10 @@ export function FormHeader() {
           params: [
             {
               chainId: "0x4cef52",
-              chainName: "Arc Testnet",
+              chainName: "Fhenix Nitrogen",
               nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 18 },
-              rpcUrls: ["https://rpc.testnet.arc.network"],
-              blockExplorerUrls: ["https://testnet.arcscan.app"],
+              rpcUrls: ["https://api.nitrogen.fhenix.zone"],
+              blockExplorerUrls: ["https://explorer.nitrogen.fhenix.zone"],
             },
           ],
         });
@@ -45,7 +45,7 @@ export function FormHeader() {
       <Link href="/" className="flex items-center gap-3 group">
         <span className="relative w-7 h-9">
           <Image
-            src="/corpus-logo.png"
+            src="/fhox-logo.png"
             alt=""
             fill
             sizes="28px"
@@ -72,7 +72,7 @@ export function FormHeader() {
             className="text-[11px] tracking-[0.32em] uppercase text-red-300 border border-red-500/60 hover:bg-red-500/10 px-6 py-3 transition-all"
             onClick={switchToArc}
           >
-            Switch to Arc Testnet
+            Switch to Fhenix Nitrogen
           </button>
         ) : (
           <div className="flex items-center gap-5 font-mono text-[11px]">
