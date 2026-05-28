@@ -47,7 +47,7 @@ export function Hero() {
           style={{ animation: "fadeUp 1.6s cubic-bezier(0.16,1,0.3,1) 0.1s both" }}
         >
           <Image
-            src="/corpus-logo.png"
+            src="/fhox-logo.png"
             alt="CORPUS"
             fill
             sizes="(min-width: 768px) 240px, 200px"
