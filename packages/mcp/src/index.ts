@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
- * CORPUS MCP server.
+ * FHOX MCP server.
  *
- * Exposes every CorpusClient method as an MCP tool so any LLM agent (Claude, GPT,
- * etc) connected via MCP can form LLCs, run treasury operations, verify entities,
- * and open/resolve disputes — all on real Arc Testnet, no mocks.
+ * Exposes every FhoxClient method as an MCP tool so any LLM agent (Claude, GPT,
+ * etc) connected via MCP can form LLCs, run privacy-first treasury operations,
+ * verify entities, and open/resolve disputes — all on Fhenix Nitrogen testnet.
  *
  * Transport: stdio. Drop into Claude Desktop / Cursor / any MCP-aware host.
  *
  * Env required:
- *   ARC_RPC_URL          - Arc Testnet JSON-RPC URL
- *   CORPUS_FACTORY       - deployed CorpusFactory address
+ *   FHENIX_RPC_URL       - Fhenix Nitrogen JSON-RPC URL
+ *   FHOX_FACTORY         - deployed FhoxFactory address
  *   AGENT_PRIVATE_KEY    - 0x-prefixed 64-char hex
  */
 
@@ -21,29 +21,29 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import {
-  CorpusClient,
-  arcTestnet,
-  arcTestnetWalletClient,
-} from "@corpus/sdk";
+  FhoxClient,
+  fhenixNitrogen,
+  fhenixWalletClient,
+} from "@fhox/sdk";
 import { type Address, type Hex, createPublicClient, getAddress, http, keccak256, toHex } from "viem";
 import { z } from "zod";
 
 // ── Env / client ────────────────────────────────────────────────────────────
 
-function loadClient(): CorpusClient {
-  const rpcUrl = process.env.ARC_RPC_URL;
-  const factory = process.env.CORPUS_FACTORY;
+function loadClient(): FhoxClient {
+  const rpcUrl = process.env.FHENIX_RPC_URL;
+  const factory = process.env.FHOX_FACTORY;
   const privateKey = process.env.AGENT_PRIVATE_KEY;
   const missing: string[] = [];
-  if (!rpcUrl) missing.push("ARC_RPC_URL");
-  if (!factory) missing.push("CORPUS_FACTORY");
+  if (!rpcUrl) missing.push("FHENIX_RPC_URL");
+  if (!factory) missing.push("FHOX_FACTORY");
   if (!privateKey) missing.push("AGENT_PRIVATE_KEY");
   if (missing.length) throw new Error(`missing env: ${missing.join(", ")}`);
 
-  const publicClient = createPublicClient({ chain: arcTestnet, transport: http(rpcUrl) });
-  const walletClient = arcTestnetWalletClient({ rpcUrl: rpcUrl!, privateKey: privateKey as Hex });
+  const publicClient = createPublicClient({ chain: fhenixNitrogen, transport: http(rpcUrl) });
+  const walletClient = fhenixWalletClient({ rpcUrl: rpcUrl!, privateKey: privateKey as Hex });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return new CorpusClient({ publicClient: publicClient as any, walletClient, factory: getAddress(factory!) });
+  return new FhoxClient({ publicClient: publicClient as any, walletClient, factory: getAddress(factory!) });
 }
 
 // ── USDC helpers (6 decimals) ───────────────────────────────────────────────
@@ -95,7 +95,7 @@ const AddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 
 const tools = [
   {
-    name: "corpus_whoami",
+    name: "fhox_whoami",
     description: "Show this agent's signer address, USDC balance, and which factory it's pointed at.",
     inputSchema: { type: "object", properties: {} },
     schema: z.object({}),
@@ -113,7 +113,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_is_name_taken",
+    name: "fhox_is_name_taken",
     description: "Check whether a legal entity name is already registered.",
     inputSchema: {
       type: "object",
@@ -127,7 +127,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_find_entity_by_name",
+    name: "fhox_find_entity_by_name",
     description: "Resolve a legal name to its manager address (null if not registered).",
     inputSchema: {
       type: "object",
@@ -141,9 +141,9 @@ const tools = [
     },
   },
   {
-    name: "corpus_form",
+    name: "fhox_form",
     description:
-      "Form a new CORPUS entity. Atomically: deploys a CorpusManager, mints an ERC-8004 identity NFT, and transfers it to the principal. Returns manager address + token id.",
+      "Form a new FHOX entity. Atomically: deploys a FhoxManager with FHE-encrypted treasury, mints an ERC-8004 identity NFT, and transfers it to the principal. Returns manager address + token id.",
     inputSchema: {
       type: "object",
       properties: {
@@ -154,7 +154,7 @@ const tools = [
         mediator: { type: "string", description: "Must differ from principal" },
         dailyCapUsdc: { type: "string", description: "Daily cap as decimal USDC ('100', '0' = none)" },
         allowlistOnly: { type: "boolean", default: false },
-        identityMetadataURI: { type: "string", default: "ipfs://corpus-default" },
+        identityMetadataURI: { type: "string", default: "ipfs://fhox-default" },
         articlesHash: { type: "string", default: "0x" + "00".repeat(32) },
         operatingAgreementHash: { type: "string", default: "0x" + "00".repeat(32) },
       },
@@ -168,7 +168,7 @@ const tools = [
       mediator: AddressSchema,
       dailyCapUsdc: z.string().default("0"),
       allowlistOnly: z.boolean().default(false),
-      identityMetadataURI: z.string().default("ipfs://corpus-default"),
+      identityMetadataURI: z.string().default("ipfs://fhox-default"),
       articlesHash: Bytes32Schema.default("0x" + "00".repeat(32)),
       operatingAgreementHash: Bytes32Schema.default("0x" + "00".repeat(32)),
     }),
@@ -202,7 +202,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_get_entity_state",
+    name: "fhox_get_entity_state",
     description: "Read the full on-chain state of an entity (metadata, policy, actors, treasury).",
     inputSchema: {
       type: "object",
@@ -221,7 +221,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_verify_entity",
+    name: "fhox_verify_entity",
     description:
       "Cryptographically verify an entity. Checks that the on-chain principal owns the ERC-8004 identity NFT — proving the agent/LLC link is intact.",
     inputSchema: {
@@ -236,7 +236,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_treasury_balance",
+    name: "fhox_treasury_balance",
     description: "Read an entity's USDC treasury balance.",
     inputSchema: {
       type: "object",
@@ -251,7 +251,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_fund",
+    name: "fhox_fund",
     description: "Send USDC from the signer's wallet to a manager (or any address).",
     inputSchema: {
       type: "object",
@@ -270,7 +270,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_pay",
+    name: "fhox_pay",
     description: "Execute a USDC payment from an entity's treasury under its spending policy.",
     inputSchema: {
       type: "object",
@@ -306,7 +306,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_set_allowlist",
+    name: "fhox_set_allowlist",
     description: "Add or remove an address from the entity's allowlist.",
     inputSchema: {
       type: "object",
@@ -330,7 +330,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_set_policy",
+    name: "fhox_set_policy",
     description: "Update spending policy (daily cap + allowlist-only).",
     inputSchema: {
       type: "object",
@@ -357,7 +357,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_rotate_principal",
+    name: "fhox_rotate_principal",
     description: "Transfer commercial control of an entity to a new address.",
     inputSchema: {
       type: "object",
@@ -373,7 +373,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_rotate_mediator",
+    name: "fhox_rotate_mediator",
     description: "Swap the dispute-resolution mediator.",
     inputSchema: {
       type: "object",
@@ -389,7 +389,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_open_dispute",
+    name: "fhox_open_dispute",
     description:
       "Open a dispute against an entity. Caller must be the principal or the counterparty (who must have prior payment history).",
     inputSchema: {
@@ -425,7 +425,7 @@ const tools = [
     },
   },
   {
-    name: "corpus_resolve_dispute",
+    name: "fhox_resolve_dispute",
     description: "Mediator-only: deliver a binding resolution. Pays the award out of the entity's treasury.",
     inputSchema: {
       type: "object",
@@ -467,7 +467,7 @@ const formSchema = z.object({
   mediator: AddressSchema,
   dailyCapUsdc: z.string().default("0"),
   allowlistOnly: z.boolean().default(false),
-  identityMetadataURI: z.string().default("ipfs://corpus-default"),
+  identityMetadataURI: z.string().default("ipfs://fhox-default"),
   articlesHash: Bytes32Schema.default("0x" + "00".repeat(32)),
   operatingAgreementHash: Bytes32Schema.default("0x" + "00".repeat(32)),
 });
@@ -476,7 +476,7 @@ void HexSchema;
 // ── Wire up MCP server ──────────────────────────────────────────────────────
 
 const server = new Server(
-  { name: "corpus-mcp", version: "0.1.0" },
+  { name: "fhox-mcp", version: "0.1.0" },
   { capabilities: { tools: {} } },
 );
 
@@ -500,10 +500,10 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   // stderr only — stdout is reserved for the MCP wire protocol
-  process.stderr.write("[corpus-mcp] connected on stdio\n");
+  process.stderr.write("[fhox-mcp] connected on stdio\n");
 }
 
 main().catch((err) => {
-  process.stderr.write(`[corpus-mcp] fatal: ${err instanceof Error ? err.message : String(err)}\n`);
+  process.stderr.write(`[fhox-mcp] fatal: ${err instanceof Error ? err.message : String(err)}\n`);
   process.exit(1);
 });
