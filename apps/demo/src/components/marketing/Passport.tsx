@@ -32,7 +32,7 @@ export function Passport() {
 
           <Reveal delay={240}>
             <p className="mt-8 text-stone max-w-md text-[16px] font-light leading-relaxed">
-              Every formed agent receives a Corpus Passport — a verifiable legal identity bound to
+              Every formed agent receives a FHOX Passport — a verifiable legal identity bound to
               the entity, the treasury, and the audit record. One credential that any counterparty,
               registry, or court can resolve.
             </p>
@@ -59,7 +59,7 @@ export function Passport() {
               <div className="flex items-start justify-between mb-10">
                 <div>
                   <p className="text-[10px] tracking-[0.48em] uppercase text-gold/70 mb-3">
-                    Corpus Passport
+                    FHOX Passport
                   </p>
                   <p className="serif text-bone text-3xl font-light tracking-wide">
                     Loom Trading DAO LLC
@@ -85,7 +85,7 @@ export function Passport() {
               <div className="gold-rule mt-10 mb-6 opacity-60" />
               <div className="flex items-center justify-between text-[10px] tracking-[0.32em] uppercase text-stone/80">
                 <span>Verified Entity</span>
-                <span className="text-gold/80">Arc Testnet · 5042002</span>
+                <span className="text-gold/80">Fhenix Nitrogen · 8008148</span>
               </div>
             </div>
           </div>
