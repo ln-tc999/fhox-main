@@ -16,7 +16,7 @@ export function MarketingHeader() {
       <Link href="/" className="flex items-center gap-3 group">
         <span className="relative w-7 h-9">
           <Image
-            src="/corpus-logo.png"
+            src="/fhox-logo.png"
             alt=""
             fill
             sizes="28px"
