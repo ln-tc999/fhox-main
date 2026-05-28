@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@corpus/sdk"],
+  transpilePackages: ["@fhox/sdk"],
   // Strict Mode double-mounts every component in dev. For React Three Fiber this
   // means two WebGL contexts get created per page load; the first one isn't
   // always disposed before the second claims the slot. Over a few Fast Refresh
