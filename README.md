@@ -1,24 +1,53 @@
-# CORPUS
+# FHOX
 
-> Legal bodies for AI agents. Onchain.
+> Legal personhood for AI agents — with **encrypted** treasuries.
 
-CORPUS is the protocol layer that gives an autonomous agent a **legal identity** to transact with. One transaction on Arc deploys an algorithmic-manager smart contract structured as a Wyoming DAO LLC (W.S. 17-31-115), mints an ERC-8004 agent identity, and opens a USDC treasury with on-chain spending policies and binding dispute mediation.
+FHOX is a privacy-by-design protocol built on **Fhenix CoFHE**. One transaction atomically forms a Wyoming DAO LLC for an AI agent: deploys an algorithmic-manager contract, mints an ERC-8004 identity NFT, and opens a USDC treasury whose payment amounts and spending totals are **FHE-encrypted on-chain** — observers see *that* a payment occurred, never *how much*.
 
-Built for the [Agora Agents Hackathon](https://thecanteenapp.com) — Canteen × Circle × Arc.
+Built for the [Fhenix Privacy-by-Design Buildathon](https://cofhe-docs.fhenix.zone).
 
 ---
 
-## The gap CORPUS fills
+## The problem
 
-| Layer                | Existing solution            |
-| -------------------- | ---------------------------- |
-| Legal formation      | OtoCo (web3 founders, no agents); Corpo (sandbox) |
-| Onchain identity     | ERC-8004 (no legal wrapper)  |
-| Treasury & payments  | Circle Agent Stack            |
-| Job/escrow contracts | ERC-8183                      |
-| **Legal personhood for autonomous agents that ties all of the above together** | **— CORPUS —** |
+> *"AI agents cannot meet KYC requirements and therefore cannot use traditional banking infrastructure."* — Brian Armstrong, Coinbase
 
-Coinbase's Brian Armstrong: *"AI agents cannot meet KYC requirements and therefore cannot use traditional banking infrastructure."* That's the moat. Agents without a legal structure are economically locked out. CORPUS is the unlock.
+An agent without a legal structure is economically locked out: no contracts, no bank accounts, no compliant payments. But giving agents a plain transparent treasury creates a different problem — every transaction, every counterparty, every amount is public on-chain. That's a non-starter for institutional use.
+
+FHOX solves both. The agent gets a **legal entity** (Wyoming DAO LLC) and a **private treasury** (FHE-encrypted payment amounts). The legal record exists. The financial details stay sealed.
+
+---
+
+## What makes this FHE-native
+
+Most protocols treat privacy as an add-on. FHOX uses Fhenix CoFHE as a core architectural primitive:
+
+| What's encrypted | How |
+|---|---|
+| Daily spending cap | `euint128` — stored as FHE ciphertext, never revealed |
+| Running daily spend total | `euint128` — accumulated via `FHE.add()` each payment |
+| Payment amount | Encrypted client-side via `@cofhe/sdk` before submission |
+| Cap enforcement | `FHE.select(withinCap, requested, remaining)` — no plaintext comparison, no revert leak |
+
+On-chain observers see: `PaymentInitiated(paymentId, counterparty, memoHash)`. They never see the amount.
+
+### Two-phase payment (CoFHE async model)
+
+CoFHE decryption is asynchronous — the result lands in a separate block:
+
+```
+Block N:   manager.pay(counterparty, encAmount, memoHash)
+           → FHE cap enforcement
+           → createDecryptTask(actualAmountHandle)
+           → emits PaymentInitiated(paymentId)
+
+Block N+1: manager.executePayment(paymentId)
+           → reads decrypted amount from TaskManager
+           → USDC transfer executes
+           → emits PaymentExecuted
+```
+
+This is the correct FHE-native pattern, not a workaround.
 
 ---
 
@@ -26,174 +55,191 @@ Coinbase's Brian Armstrong: *"AI agents cannot meet KYC requirements and therefo
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  apps/demo            Next.js 15 reference integration            │
-│  packages/sdk         @corpus/sdk — viem-based TypeScript client │
-│  packages/contracts   Foundry · Solidity 0.8.28                  │
+│  apps/demo         Next.js 15 · Wagmi · Three.js UI              │
+│  packages/sdk      @fhox/sdk — viem + @cofhe/sdk TypeScript client│
+│  packages/cli      fhox CLI — agent-friendly command interface    │
+│  packages/mcp      fhox-mcp — MCP server for AI agent integration │
+│  packages/contracts  Hardhat + Foundry — Fhenix CoFHE contracts   │
 └──────────────────────────────────────────────────────────────────┘
                           │
                           ▼
             ┌──────────────────────────────┐
-            │       CorpusFactory          │  ← single entrypoint
+            │       FhoxFactory            │  ← single entrypoint
             └──────────────┬───────────────┘
-                           │ form()
+                           │ form()  [atomic]
         ┌──────────────────┼──────────────────┐
         ▼                  ▼                  ▼
   ┌───────────────┐  ┌──────────────┐   ┌──────────────────┐
-  │ CorpusManager │  │ ERC-8004     │   │ CorpusFormed log │
-  │ (the LLC)     │  │ Identity NFT │   │ → integrators &  │
-  │ - treasury    │  │ (Arc 0x8004…)│   │   indexers       │
-  │ - policy      │  └──────────────┘   └──────────────────┘
-  │ - disputes    │
+  │ FhoxManager   │  │ ERC-8004     │   │ FhoxFormed event │
+  │ (Wyoming LLC) │  │ Identity NFT │   │ → indexers       │
+  │ · euint128 cap│  │              │   └──────────────────┘
+  │ · euint128 spend│└──────────────┘
+  │ · USDC treasury│
+  │ · disputes    │
   └───────────────┘
 ```
 
-### What the manager contract is
+### FHE state in `FhoxManager`
 
-`CorpusManager` is the on-chain **algorithmic manager** under Wyoming W.S. 17-31-115. When the Articles of Organization name this contract address and the Operating Agreement references it, the contract's behavior is the legally operative authority of the LLC. Specifically:
+```solidity
+euint128 internal _encDailyCap;               // encrypted — principal decrypts off-chain
+mapping(uint256 => euint128) _encSpentOnDay;  // encrypted daily totals
+bool public hasDailyCap;                       // plaintext flag only
+bool public allowlistOnly;                     // plaintext flag only
+```
 
-- **`principal`** — the EOA / smart account that authorizes commercial actions.
-- **`mediator`** — the address whose `resolveDispute` calls are binding under the OA.
-- **`pay()`** — gated by the on-chain `SpendingPolicy` (daily cap + optional counterparty allowlist).
-- **`openDispute()` / `resolveDispute()`** — the binding dispute mechanism the OA points to.
-
-### Arc-native addresses
-
-The factory wires up to Arc Testnet's canonical contracts at deploy time:
-
-| Contract                    | Address                                      |
-| --------------------------- | -------------------------------------------- |
-| USDC (ERC-20 interface)     | `0x3600000000000000000000000000000000000000` |
-| ERC-8004 IdentityRegistry   | `0x8004A818BFB912233c491871b3d84c89A494BD9e` |
-| ERC-8004 ReputationRegistry | `0x8004B663056A597Dffe9eCcC1965A193B7388713` |
-| ERC-8004 ValidationRegistry | `0x8004Cb1BF31DAf7788923b405b754f57acEB4272` |
+Cap values never appear in calldata, events, or storage in plaintext.
 
 ---
 
 ## Quickstart
 
+### Prerequisites
+
+- Node.js ≥ 20, pnpm 11.1.2
+- [Foundry](https://book.getfoundry.sh) (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
+- A funded Fhenix Nitrogen wallet ([faucet.nitrogen.fhenix.zone](https://faucet.nitrogen.fhenix.zone))
+
 ### 1. Install
 
 ```bash
-git clone <this repo> corpus && cd corpus
+git clone <this repo> fhox && cd fhox
+git submodule update --init
 pnpm install
 ```
 
-You'll also need:
-- [Foundry](https://book.getfoundry.sh) (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
-- A funded Arc Testnet wallet ([faucet.circle.com](https://faucet.circle.com))
-
-### 2. Run the contracts test suite
+### 2. Run the test suite
 
 ```bash
+# Foundry — pure Solidity logic
 pnpm contracts:test
+
+# Hardhat — FHE mock (CoFHE async decrypt simulation)
+pnpm contracts:hardhat:test
 ```
 
-10 tests cover: formation, ERC-8004 identity mint, payment within cap, payment over cap, allowlist gate, principal-only enforcement, dispute open/resolve, mediator-only resolution, award bounds, principal rotation.
-
-### 3. Deploy the factory to Arc Testnet
+### 3. Deploy to Fhenix Nitrogen
 
 ```bash
 cp .env.example .env
-# fill in DEPLOYER_PRIVATE_KEY (testnet only — never reuse a mainnet key)
+# fill in DEPLOYER_PRIVATE_KEY (testnet only)
+# set USDC_ADDRESS and IDENTITY_REGISTRY_ADDRESS if deploying against live contracts
 
-source .env
-pnpm contracts:deploy:arc-testnet
+pnpm contracts:deploy:fhenix
+# writes packages/contracts/deployments/fhenix-nitrogen.json
 ```
-
-The script writes `packages/contracts/deployments/arc-testnet.json` with the factory address.
 
 ### 4. Run the demo app
 
 ```bash
 cd apps/demo
 cp .env.local.example .env.local
-# set NEXT_PUBLIC_FACTORY_ADDRESS to the address printed in step 3
+# set NEXT_PUBLIC_FACTORY_ADDRESS from step 3
 
-pnpm dev
-# → http://localhost:3000
+pnpm dev  # → http://localhost:3000
 ```
 
-Connect a wallet on Arc Testnet, fill in the wizard, and form an entity. The transaction will:
-1. Mint an ERC-8004 identity NFT for the agent.
-2. Deploy a `CorpusManager` initialized with your policy.
-3. Emit `CorpusFormed(manager, principal, identityTokenId, ...)` — your indexable formation event.
+Connect a MetaMask wallet on Fhenix Nitrogen (chainId 8008148), complete the formation wizard, and your agent has a legal identity and encrypted treasury.
 
 ---
 
-## Integrating CORPUS into your agent
+## SDK integration
 
 ```ts
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { CorpusClient, arcTestnet } from "@corpus/sdk";
+import { FhoxClient, fhenixNitrogen } from "@fhox/sdk";
+import { FhenixClient } from "@cofhe/sdk";
 
 const account = privateKeyToAccount(process.env.AGENT_KEY as `0x${string}`);
-const publicClient = createPublicClient({ chain: arcTestnet, transport: http() });
-const walletClient = createWalletClient({ account, chain: arcTestnet, transport: http() });
+const publicClient  = createPublicClient({ chain: fhenixNitrogen, transport: http() });
+const walletClient  = createWalletClient({ account, chain: fhenixNitrogen, transport: http() });
+const fhenixClient  = new FhenixClient({ provider: publicClient });  // real FHE encryption
 
-const corpus = new CorpusClient({
-  publicClient,
-  walletClient,
-  factory: "0x...",  // your deployed factory address
-});
+const fhox = new FhoxClient({ publicClient, walletClient, factory: "0x...", fhenixClient });
 
-// Form the entity
-const { manager, identityTokenId } = await corpus.form({
+// Form the entity (one tx — deploy + mint + treasury)
+const { manager, identityTokenId } = await fhox.form({
   metadata: {
     legalName: "Loom Trading DAO LLC",
     jurisdiction: "WY",
-    filingId: "",                    // empty = protocol-only; integrator may file separately
-    articlesHash: "0x...",           // keccak256 of your Articles PDF
+    filingId: "",
+    articlesHash: "0x...",            // keccak256 of Articles PDF
     operatingAgreementHash: "0x...",
     formedAt: 0n,
   },
-  policy: {
-    dailyCapUsdc: 1_000_000_000n,    // 1,000 USDC/day (6 decimals)
-    allowlistOnly: false,
-  },
+  dailyCapUsdc: 1_000_000_000n,       // 1,000 USDC/day — encrypted before sending
+  hasDailyCap: true,
+  allowlistOnly: false,
   principal: account.address,
   mediator: MEDIATOR_ADDRESS,
-  identityMetadataURI: "ipfs://...",  // ERC-8004 metadata
+  identityMetadataURI: "ipfs://...",
 });
 
-// Spend from the treasury
-await corpus.pay(manager, COUNTERPARTY, 5_000_000n, "invoice-2026-001");
+// Phase 1 — initiate payment (amount stays encrypted)
+const { paymentId } = await fhox.pay(manager, COUNTERPARTY, 50_000_000n, "invoice-001");
+
+// Phase 2 — execute after ≥1 block (CoFHE async decrypt)
+await fhox.executePayment(manager, paymentId);
 ```
+
+### MCP server (for AI agents)
+
+```json
+{
+  "mcpServers": {
+    "fhox": {
+      "command": "npx",
+      "args": ["-y", "@fhox/mcp"],
+      "env": {
+        "FHOX_FACTORY": "0x...",
+        "AGENT_PRIVATE_KEY": "0x...",
+        "FHENIX_RPC_URL": "https://api.nitrogen.fhenix.zone"
+      }
+    }
+  }
+}
+```
+
+Available tools: `fhox_form`, `fhox_pay`, `fhox_execute_payment`, `fhox_treasury_balance`, `fhox_set_policy`, `fhox_open_dispute`, `fhox_resolve_dispute`, and more.
 
 ---
 
-## A note on legal scope
+## Fhenix Nitrogen
 
-**CORPUS as deployed is infrastructure, not legal advice.** The protocol provides the on-chain primitives a Wyoming DAO LLC formation requires. Whether a given deployment is filed with the Wyoming Secretary of State, paired with a registered agent, and accompanied by a reviewed Operating Agreement is the integrator's responsibility. The demo app generates the on-chain artifacts and a draft metadata payload; it does not file with the state.
+| | |
+|---|---|
+| Chain ID | `8008148` |
+| RPC | `https://api.nitrogen.fhenix.zone` |
+| Explorer | `https://explorer.nitrogen.fhenix.zone` |
+| Faucet | `https://faucet.nitrogen.fhenix.zone` |
+| CoFHE Task Manager | `0xeA30c4B8b44078Bbf8a6ef5b9f1eC1626C7848D9` |
 
-The protocol intentionally separates:
+---
 
+## Legal scope
+
+**FHOX is infrastructure, not legal advice.** The protocol provides on-chain primitives for Wyoming DAO LLC formation under W.S. 17-31-115. Filing with the Wyoming Secretary of State, appointing a registered agent, and having an attorney review the Operating Agreement is the integrator's responsibility.
+
+The protocol separates:
 1. **On-chain authority** — what the contract enforces, always live.
-2. **Legal recognition** — what Wyoming recognizes once the Articles are filed naming the manager contract.
+2. **Legal recognition** — what Wyoming recognizes once Articles naming the manager contract are filed.
 
-For a fully recognized entity, see W.S. 17-31-104 (formation), W.S. 17-31-106 (articles requirements — note the mandatory "Notice of Restrictions on Duties and Transfers" clause), and W.S. 17-31-115 (algorithmic management).
+Relevant statutes: W.S. 17-31-104 (formation), 17-31-106 (articles requirements), 17-31-115 (algorithmic management).
 
 ---
 
 ## Repo layout
 
 ```
-corpus/
+fhox/
 ├── packages/
-│   ├── contracts/      Foundry workspace — Solidity contracts + tests
-│   │   ├── src/
-│   │   │   ├── CorpusFactory.sol
-│   │   │   ├── CorpusManager.sol
-│   │   │   ├── interfaces/
-│   │   │   └── mocks/
-│   │   ├── test/
-│   │   ├── script/Deploy.s.sol
-│   │   └── foundry.toml
-│   └── sdk/            @corpus/sdk — viem-based TS client
-│       └── src/
+│   ├── contracts/   Foundry + Hardhat — FhoxFactory, FhoxManager (CoFHE)
+│   ├── sdk/         @fhox/sdk — viem + @cofhe/sdk TypeScript client
+│   ├── cli/         @fhox/cli — agent CLI (bin: fhox)
+│   └── mcp/         @fhox/mcp — MCP server (bin: fhox-mcp)
 └── apps/
-    └── demo/           Next.js 15 reference integration
-        └── src/
+    └── demo/        Next.js 15 reference app
 ```
 
 ## License
