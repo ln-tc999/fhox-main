@@ -1,15 +1,17 @@
 {
-  "name": "corpus",
+  "name": "fhox",
   "private": true,
   "version": "0.1.0",
-  "description": "Onchain legal personhood for AI agents. Wyoming DAO LLC manager contracts + ERC-8004 identity + Circle treasury, on Arc.",
+  "description": "Privacy-first onchain legal personhood for AI agents — Wyoming DAO LLC with Fhenix FHE encrypted treasury.",
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "dev": "pnpm --filter @corpus/demo dev",
-    "contracts:build": "pnpm --filter @corpus/contracts build",
-    "contracts:test": "pnpm --filter @corpus/contracts test",
-    "contracts:deploy:arc-testnet": "pnpm --filter @corpus/contracts deploy:arc-testnet"
+    "dev": "pnpm --filter @fhox/demo dev",
+    "contracts:build": "pnpm --filter @fhox/contracts build",
+    "contracts:test": "pnpm --filter @fhox/contracts test",
+    "contracts:hardhat:build": "pnpm --filter @fhox/contracts hardhat:build",
+    "contracts:hardhat:test": "pnpm --filter @fhox/contracts hardhat:test",
+    "contracts:deploy:fhenix": "pnpm --filter @fhox/contracts deploy:fhenix-nitrogen"
   },
   "packageManager": "pnpm@11.1.2",
   "engines": {
