@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     name?: string;
     displayName?: string;
   };
-  const name = body.name ?? "corpus-agent";
+  const name = body.name ?? "fhox-agent";
   const displayName = body.displayName ?? name;
   const rpId = rpIdFor(req);
 
