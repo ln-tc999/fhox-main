@@ -19,7 +19,7 @@ export function registerFormCommand(program: Command) {
     .option(
       "--uri <uri>",
       "ipfs:// or https:// metadata URI for the ERC-8004 identity",
-      "ipfs://corpus-default",
+      "ipfs://fhox-default",
     )
     .action(async (rawOpts: Record<string, unknown>) => {
       try {
@@ -82,7 +82,7 @@ export function registerFormCommand(program: Command) {
             `  ${fmt.bold("mediator:")}   ${mediator}`,
             `  ${fmt.bold("tx:")}         ${result.txHash}`,
             "",
-            fmt.dim("identity NFT is in principal's wallet — verify with: corpus verify " + result.manager),
+            fmt.dim("identity NFT is in principal's wallet — verify with: fhox verify " + result.manager),
           ].join("\n"),
         );
         void keccak256(toHex("")); // import retained
