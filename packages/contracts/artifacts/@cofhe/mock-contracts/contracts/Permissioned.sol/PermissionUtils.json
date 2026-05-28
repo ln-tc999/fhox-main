@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "PermissionUtils",
+  "sourceName": "@cofhe/mock-contracts/contracts/Permissioned.sol",
+  "abi": [],
+  "bytecode": "0x6080806040523460175760399081601c823930815050f35b5f80fdfe5f80fdfea2646970667358221220383e84bb41bc005d8c43dcf282a6bca28fa8c72614d83c18081b973d697d511464736f6c634300081c0033",
+  "deployedBytecode": "0x5f80fdfea2646970667358221220383e84bb41bc005d8c43dcf282a6bca28fa8c72614d83c18081b973d697d511464736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
