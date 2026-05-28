@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 
-export const CHALLENGE_COOKIE = "corpus.challenge";
+export const CHALLENGE_COOKIE = "fhox.challenge";
 
 export function rpIdFor(req: NextRequest): string {
   const host = req.headers.get("host") ?? "localhost";
