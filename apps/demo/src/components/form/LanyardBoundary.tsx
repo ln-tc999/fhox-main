@@ -14,7 +14,7 @@ export class LanyardBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(err: unknown) {
-    console.warn("[corpus] 3D lanyard failed, falling back to CSS:", err);
+    console.warn("[fhox] 3D lanyard failed, falling back to CSS:", err);
   }
 
   render() {
