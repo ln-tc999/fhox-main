@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { type Address, formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
-import { corpusManagerAbi, ARC_TESTNET_ADDRESSES } from "@corpus/sdk";
+import { fhoxManagerAbi, FHENIX_NITROGEN_ADDRESSES } from "@fhox/sdk";
 
 type Metadata = { legalName: string; jurisdiction: string };
 
@@ -28,10 +28,11 @@ export function PassportCard({
     (async () => {
       const tryRead = async <T,>(fn: string): Promise<T | null> => {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return (await publicClient.readContract({
             address: manager,
-            abi: corpusManagerAbi,
-            functionName: fn,
+            abi: fhoxManagerAbi,
+            functionName: fn as any,
           })) as T;
         } catch (e) {
           console.warn(`[passport] read '${fn}' failed`, e);
@@ -65,7 +66,7 @@ export function PassportCard({
         <div className="flex items-start justify-between mb-10 gap-6">
           <div>
             <p className="text-[10px] tracking-[0.48em] uppercase text-gold/80 mb-3">
-              Corpus Passport
+              FHOX Passport
             </p>
             <h3 className="serif text-bone text-3xl md:text-4xl font-light tracking-wide">
               {meta?.legalName ?? "—"}
@@ -88,7 +89,7 @@ export function PassportCard({
             v={
               <a
                 className="underline underline-offset-[6px] decoration-gold/40 hover:decoration-gold transition-colors"
-                href={`https://testnet.arcscan.app/address/${manager}`}
+                href={`https://explorer.nitrogen.fhenix.zone/address/${manager}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -102,7 +103,7 @@ export function PassportCard({
             v={
               <a
                 className="underline underline-offset-[6px] decoration-gold/40 hover:decoration-gold transition-colors"
-                href={`https://testnet.arcscan.app/token/${ARC_TESTNET_ADDRESSES.identityRegistry}?a=${tokenId}`}
+                href={`https://explorer.nitrogen.fhenix.zone/token/${FHENIX_NITROGEN_ADDRESSES.identityRegistry}?a=${tokenId}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -135,7 +136,7 @@ export function PassportCard({
 
         <div className="mt-10 pt-6 border-t border-gold/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="text-[10px] tracking-[0.32em] uppercase text-stone">
-            <span className="text-gold/80">Sealed</span> · Arc Testnet · chain 5042002
+            <span className="text-gold/80">Sealed</span> · Fhenix Nitrogen · chain 8008148
           </div>
           <Link
             href={`/passport/${manager}`}
