@@ -13,16 +13,18 @@ export type EntityMetadata = {
   formedAt: bigint;
 };
 
-export type SpendingPolicy = {
-  /** USDC (6 decimals) per UTC day. 0 = no cap. */
-  dailyCapUsdc: bigint;
-  /** When true, payments only succeed to addresses on the on-chain allowlist. */
+/** Public view of spending policy. The actual cap value is FHE-encrypted and private. */
+export type PolicyView = {
+  hasDailyCap: boolean;
   allowlistOnly: boolean;
 };
 
 export type FormParams = {
   metadata: EntityMetadata;
-  policy: SpendingPolicy;
+  /** Plaintext daily cap in USDC (6 decimals). SDK encrypts this before sending. 0 = no cap. */
+  dailyCapUsdc: bigint;
+  hasDailyCap: boolean;
+  allowlistOnly: boolean;
   principal: Address;
   mediator: Address;
   /** Off-chain metadata for the ERC-8004 identity (ipfs:// or https://). */
@@ -49,18 +51,15 @@ export type Dispute = {
   openedAt: bigint;
 };
 
-/**
- * Snapshot of an entity's full on-chain state. Returned by {@link CorpusClient.getEntityState}.
- */
+/** Snapshot of an entity's on-chain state. Financial amounts are encrypted — use getSealedDailyCap / getSealedTodaySpent to read them. */
 export type EntityState = {
   manager: Address;
   metadata: EntityMetadata;
-  policy: SpendingPolicy;
+  policy: PolicyView;
   principal: Address;
   mediator: Address;
   identityTokenId: bigint;
   treasuryBalance: bigint;
-  todaySpent: bigint;
   nextDisputeId: bigint;
 };
 
@@ -74,11 +73,11 @@ export type VerificationResult = {
   state: EntityState;
 };
 
+/** Payment event — amount is intentionally absent (FHE-private). */
 export type PaymentEvent = {
   blockNumber: bigint;
   txHash: Hex;
   counterparty: Address;
-  amount: bigint;
   memoHash: Hex;
 };
 
@@ -103,4 +102,10 @@ export type DisputeResolvedEvent = {
 export type TxResult = {
   txHash: Hex;
   wait: () => Promise<{ blockNumber: bigint; status: "success" | "reverted" }>;
+};
+
+/** FHE Permission for sealed-output reads (produced by @cofhe/sdk getPermit). */
+export type FhePermission = {
+  publicKey: Hex;
+  signature: Hex;
 };
