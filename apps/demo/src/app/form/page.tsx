@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import type { Address } from "viem";
-import { arcTestnet } from "@corpus/sdk";
+import { fhenixNitrogen } from "@fhox/sdk";
 import { FormHeader } from "@/components/form/FormHeader";
 import { FormationWizard } from "@/components/form/FormationWizard";
 import { Sealed } from "@/components/form/Sealed";
@@ -11,7 +11,7 @@ import { MyAgents } from "@/components/form/MyAgents";
 
 export default function FormPage() {
   const { isConnected, chainId } = useAccount();
-  const onArc = chainId === arcTestnet.id;
+  const onArc = chainId === fhenixNitrogen.id;
   const [formed, setFormed] = useState<{
     manager: Address;
     tokenId: bigint;
@@ -86,10 +86,10 @@ export default function FormPage() {
               Wrong Network
             </p>
             <h2 className="serif text-bone text-3xl md:text-4xl font-light mb-4">
-              Switch to Arc Testnet.
+              Switch to Fhenix Nitrogen.
             </h2>
             <p className="text-stone text-sm font-light">
-              CORPUS forms entities on Arc Testnet (chain 5042002). Use the switch button in the
+              CORPUS forms entities on Fhenix Nitrogen (chain 8008148). Use the switch button in the
               header.
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function FormPage() {
       </section>
 
       <footer className="relative z-10 border-t border-gold/10 px-8 md:px-16 py-7 text-[10px] tracking-[0.32em] uppercase text-stone/50 flex flex-col md:flex-row gap-3 md:justify-between">
-        <span>Corpus · v0.1 · Arc Testnet</span>
+        <span>FHOX · v0.1 · Fhenix Nitrogen</span>
         <span>Agora Agents · Canteen × Circle × Arc</span>
       </footer>
     </main>
