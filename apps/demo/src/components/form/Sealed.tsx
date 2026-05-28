@@ -68,9 +68,9 @@ export function Sealed({
 
       <div className="flex justify-center" style={{ animation: "fadeUp 1.2s cubic-bezier(0.16,1,0.3,1) both" }}>
         <ProfileCard
-          avatarUrl="/corpus-logo.png"
-          miniAvatarUrl="/corpus-logo.png"
-          rubric="Corpus Passport"
+          avatarUrl="/fhox-logo.png"
+          miniAvatarUrl="/fhox-logo.png"
+          rubric="FHOX Passport"
           name={legalName}
           title={`erc-8004 · #${tokenId.toString()}`}
           handle={handle}
