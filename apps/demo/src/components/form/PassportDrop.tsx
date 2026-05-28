@@ -78,7 +78,7 @@ export function PassportDrop({
           <div className="passport-rule short" />
 
           <div className="passport-footer">
-            <span>ARC TESTNET · CHAIN 5042002</span>
+            <span>FHENIX NITROGEN · CHAIN 8008148</span>
             <span className="footer-sep">·</span>
             <span>ERC-8004</span>
           </div>
