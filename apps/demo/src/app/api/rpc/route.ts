@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const UPSTREAM = process.env.ARC_RPC_URL ?? "https://rpc.testnet.arc.network";
+const UPSTREAM = process.env.FHENIX_RPC_URL ?? "https://api.nitrogen.fhenix.zone";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
