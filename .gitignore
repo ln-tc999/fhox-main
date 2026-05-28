@@ -1,0 +1,34 @@
+node_modules
+.pnpm-store
+.next
+out
+dist
+build
+coverage
+
+# env
+.env
+.env.local
+.env.*.local
+
+# foundry
+packages/contracts/out
+packages/contracts/cache
+packages/contracts/broadcast/**/dry-run
+packages/contracts/.gas-snapshot
+
+# macOS
+.DS_Store
+
+# editor
+.idea
+.vscode/*
+!.vscode/settings.json.example
+
+# deploy artifacts (per-network deployed addresses are committed; keep this commented)
+# packages/contracts/deployments/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*

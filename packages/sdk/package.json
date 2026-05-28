@@ -1,0 +1,35 @@
+{
+  "name": "@corpus/sdk",
+  "version": "0.1.0",
+  "description": "CORPUS TypeScript SDK — give an AI agent a legal body on Arc in one call.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./abis": {
+      "types": "./dist/abis.d.ts",
+      "import": "./dist/abis.js"
+    },
+    "./chains": {
+      "types": "./dist/chains.d.ts",
+      "import": "./dist/chains.js"
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "echo \"no sdk tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@corpus/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CORPUS smart contracts — Wyoming DAO LLC algorithmic manager, treasury, dispute mediation on Arc.",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vv",
+    "test:gas": "forge test --gas-report",
+    "fmt": "forge fmt",
+    "deploy:arc-testnet": "forge script script/Deploy.s.sol:Deploy --rpc-url $ARC_TESTNET_RPC_URL --broadcast --slow"
+  }
+}

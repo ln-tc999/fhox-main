@@ -1,0 +1,24 @@
+{
+  "name": "corpus",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Onchain legal personhood for AI agents. Wyoming DAO LLC manager contracts + ERC-8004 identity + Circle treasury, on Arc.",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "dev": "pnpm --filter @corpus/demo dev",
+    "contracts:build": "pnpm --filter @corpus/contracts build",
+    "contracts:test": "pnpm --filter @corpus/contracts test",
+    "contracts:deploy:arc-testnet": "pnpm --filter @corpus/contracts deploy:arc-testnet"
+  },
+  "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.14",
+      "ws": "8.20.1"
+    }
+  }
+}
