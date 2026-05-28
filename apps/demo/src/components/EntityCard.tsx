@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { type Address, formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
-import { corpusManagerAbi, ARC_TESTNET_ADDRESSES } from "@corpus/sdk";
+import { fhoxManagerAbi, FHENIX_NITROGEN_ADDRESSES } from "@fhox/sdk";
 
 export function EntityCard({ manager, tokenId }: { manager: Address; tokenId: bigint }) {
   const publicClient = usePublicClient();
@@ -18,12 +18,12 @@ export function EntityCard({ manager, tokenId }: { manager: Address; tokenId: bi
         const [bal, m] = await Promise.all([
           publicClient.readContract({
             address: manager,
-            abi: corpusManagerAbi,
+            abi: fhoxManagerAbi,
             functionName: "treasuryBalance",
           }) as Promise<bigint>,
           publicClient.readContract({
             address: manager,
-            abi: corpusManagerAbi,
+            abi: fhoxManagerAbi,
             functionName: "metadata",
           }) as Promise<{ legalName: string; jurisdiction: string }>,
         ]);
@@ -47,7 +47,7 @@ export function EntityCard({ manager, tokenId }: { manager: Address; tokenId: bi
         <span className="text-ink/50">manager</span>
         <a
           className="truncate underline underline-offset-4"
-          href={`https://testnet.arcscan.app/address/${manager}`}
+          href={`https://explorer.nitrogen.fhenix.zone/address/${manager}`}
           target="_blank"
           rel="noreferrer"
         >
@@ -56,7 +56,7 @@ export function EntityCard({ manager, tokenId }: { manager: Address; tokenId: bi
         <span className="text-ink/50">erc-8004 token</span>
         <a
           className="underline underline-offset-4"
-          href={`https://testnet.arcscan.app/token/${ARC_TESTNET_ADDRESSES.identityRegistry}?a=${tokenId}`}
+          href={`https://explorer.nitrogen.fhenix.zone/token/${FHENIX_NITROGEN_ADDRESSES.identityRegistry}?a=${tokenId}`}
           target="_blank"
           rel="noreferrer"
         >
