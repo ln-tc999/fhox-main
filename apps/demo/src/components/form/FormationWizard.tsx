@@ -12,7 +12,7 @@ import {
   http,
 } from "viem";
 import { useAccount, useChainId } from "wagmi";
-import { CorpusClient, arcTestnet } from "@corpus/sdk";
+import { FhoxClient, fhenixNitrogen } from "@fhox/sdk";
 import { registerPasskey, passkeysSupported } from "@/lib/passkey";
 import { saveAgent } from "@/lib/agentStore";
 
@@ -64,10 +64,10 @@ export function FormationWizard({
     (async () => {
       try {
         const publicClient = createPublicClient({
-          chain: arcTestnet,
-          transport: http(process.env.NEXT_PUBLIC_ARC_RPC_URL ?? "/api/rpc"),
+          chain: fhenixNitrogen,
+          transport: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "/api/rpc"),
         });
-        const client = new CorpusClient({
+        const client = new FhoxClient({
           publicClient,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           walletClient: {} as any, // read-only — walletClient unused for view calls
@@ -81,7 +81,7 @@ export function FormationWizard({
           existing: result.taken ? result.existingManager : null,
         });
       } catch (e) {
-        console.warn("[corpus] name check failed", e);
+        console.warn("[fhox] name check failed", e);
         if (!cancelled) setNameCheck({ checking: false, taken: false, existing: null });
       }
     })();
@@ -104,19 +104,23 @@ export function FormationWizard({
       const provider = await connector.getProvider();
       const walletClient = createWalletClient({
         account: address,
-        chain: arcTestnet,
+        chain: fhenixNitrogen,
         // @ts-expect-error — EIP-1193 provider
         transport: custom(provider),
       });
       const publicClient = createPublicClient({
-        chain: arcTestnet,
-        transport: http(process.env.NEXT_PUBLIC_ARC_RPC_URL ?? "/api/rpc"),
+        chain: fhenixNitrogen,
+        transport: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "/api/rpc"),
       });
-      if (chainId !== arcTestnet.id) {
-        throw new Error(`Wrong chain (${chainId}). Switch MetaMask to Arc Testnet (5042002).`);
+      if (chainId !== fhenixNitrogen.id) {
+        throw new Error(`Wrong chain (${chainId}). Switch wallet to Fhenix Nitrogen (8008148).`);
       }
 
-      const client = new CorpusClient({ publicClient, walletClient, factory: FACTORY });
+      const client = new FhoxClient({ publicClient, walletClient, factory: FACTORY });
+
+      setPhase("Encrypting policy (FHE)");
+      const capUsdc = BigInt(Math.floor(Number(dailyCap) * 1_000_000));
+      const hasDailyCap = capUsdc > 0n;
 
       setPhase("Awaiting signature");
       const result = await client.form({
@@ -128,14 +132,13 @@ export function FormationWizard({
           operatingAgreementHash: keccak256(toHex(`oa:${legalName}`)) as Hex,
           formedAt: 0n,
         },
-        policy: {
-          dailyCapUsdc: BigInt(Math.floor(Number(dailyCap) * 1_000_000)),
-          allowlistOnly,
-        },
+        dailyCapUsdc: capUsdc,
+        hasDailyCap,
+        allowlistOnly,
         principal: address,
         mediator: (mediator || address) as Address,
         identityMetadataURI: `data:application/json,${encodeURIComponent(
-          JSON.stringify({ name: legalName, jurisdiction: "WY", protocol: "corpus-v0.1" }),
+          JSON.stringify({ name: legalName, jurisdiction: "WY", protocol: "fhox-v0.1" }),
         )}`,
       });
 
@@ -151,7 +154,7 @@ export function FormationWizard({
           credentialId = cred.id;
           credentialPublicKey = cred.publicKey;
         } catch (passkeyErr) {
-          console.warn("[corpus] passkey registration skipped", passkeyErr);
+          console.warn("[fhox] passkey registration skipped", passkeyErr);
         }
       }
 
@@ -168,7 +171,7 @@ export function FormationWizard({
 
       onFormed(result.manager, result.identityTokenId, legalName);
     } catch (e) {
-      console.error("[corpus] form failed", e);
+      console.error("[fhox] form failed", e);
       const err = e as Record<string, unknown>;
       const msg =
         (typeof err?.shortMessage === "string" && err.shortMessage) ||
@@ -307,7 +310,8 @@ export function FormationWizard({
               <Row k="allowlist_only" v={String(allowlistOnly)} />
               <Row k="principal" v={address ?? "—"} mono />
               <Row k="mediator" v={mediator || address || "—"} mono />
-              <Row k="identity" v="ERC-8004 · Arc Testnet" />
+              <Row k="privacy" v="FHE-encrypted · Fhenix" />
+              <Row k="identity" v="ERC-8004 · Fhenix Nitrogen" />
             </div>
 
             {passkeysSupported() && (
@@ -352,7 +356,7 @@ export function FormationWizard({
                   Name Already Taken
                 </p>
                 <p className="text-bone text-[13px] font-light leading-relaxed">
-                  &ldquo;{legalName}&rdquo; is held by another CORPUS entity.
+                  &ldquo;{legalName}&rdquo; is held by another FHOX entity.
                 </p>
                 <p className="text-stone text-[11px] font-mono mt-2 break-all">
                   {nameCheck.existing}
