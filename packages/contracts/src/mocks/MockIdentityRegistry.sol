@@ -8,7 +8,7 @@ import {IIdentityRegistry} from "../interfaces/IIdentityRegistry.sol";
 /// @notice Local-test stand-in for the Arc ERC-8004 IdentityRegistry. Returns a monotonically
 ///         increasing tokenId on register() and emits the canonical Transfer event so tests can
 ///         assert against the same log shape the real registry produces.
-///         Implements the IERC721 transfer surface so CorpusFactory can deliver NFTs to principals.
+///         Implements the IERC721 transfer surface so FhoxFactory can deliver NFTs to principals.
 contract MockIdentityRegistry is IIdentityRegistry, IERC721 {
     uint256 public nextTokenId = 1;
     mapping(uint256 => address) internal _owners;
