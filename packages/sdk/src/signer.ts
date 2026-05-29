@@ -1,6 +1,6 @@
 import { type Account, type Hex, type WalletClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { fhenixNitrogen } from "./chains.js";
+import { arbitrumSepolia } from "./chains.js";
 
 export type Signer = Account;
 
@@ -15,12 +15,12 @@ export function privateKeySigner(opts: LocalSignerOptions): Signer {
   return privateKeyToAccount(opts.privateKey);
 }
 
-/** Convenience factory: build a viem wallet client for Fhenix Nitrogen from a private key. */
+/** Convenience factory: build a viem wallet client for Arbitrum Sepolia from a private key. */
 export function fhenixWalletClient(opts: { rpcUrl: string; privateKey: Hex }): WalletClient {
   const account = privateKeySigner({ privateKey: opts.privateKey });
   return createWalletClient({
     account,
-    chain: fhenixNitrogen,
+    chain: arbitrumSepolia,
     transport: http(opts.rpcUrl),
   });
 }

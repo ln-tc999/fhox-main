@@ -1,4 +1,4 @@
-import { FhoxClient, fhenixNitrogen, fhenixWalletClient } from "@fhox/sdk";
+import { FhoxClient, arbitrumSepolia, fhenixWalletClient } from "@fhox/sdk";
 import { type Address, type Hex, createPublicClient, getAddress, http } from "viem";
 
 export type CliEnv = {
@@ -20,7 +20,7 @@ export function loadEnv(): CliEnv {
     throw new Error(
       `Missing required env vars: ${missing.join(", ")}\n\n` +
         `Set them in your shell or in a .env file:\n` +
-        `  FHENIX_RPC_URL=https://api.nitrogen.fhenix.zone\n` +
+        `  FHENIX_RPC_URL=<arbitrum sepolia rpc>\n` +
         `  FHOX_FACTORY=0x...\n` +
         `  AGENT_PRIVATE_KEY=0x...`,
     );
@@ -39,7 +39,7 @@ export function loadEnv(): CliEnv {
 
 export function makeClient(env: CliEnv = loadEnv()): FhoxClient {
   const publicClient = createPublicClient({
-    chain: fhenixNitrogen,
+    chain: arbitrumSepolia,
     transport: http(env.rpcUrl),
   });
   const walletClient = fhenixWalletClient({

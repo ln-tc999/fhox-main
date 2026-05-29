@@ -17,11 +17,12 @@ export function registerPayCommand(program: Command) {
             `${fmt.dim(`paying ${formatUsdc(value)} from ${manager} → ${to}…`)}\n`,
           );
         }
-        const tx = await c.pay(getAddress(manager), getAddress(to), value, opts.memo);
-        const receipt = await tx.wait();
+        const { paymentId, txHash } = await c.pay(getAddress(manager), getAddress(to), value, opts.memo);
+        const receipt = await c.publicClient.waitForTransactionReceipt({ hash: txHash });
         if (isJsonMode()) {
           emit({
-            txHash: tx.txHash,
+            paymentId: paymentId.toString(),
+            txHash,
             blockNumber: receipt.blockNumber.toString(),
             status: receipt.status,
             amount: value.toString(),
@@ -32,11 +33,12 @@ export function registerPayCommand(program: Command) {
         }
         emit(
           [
-            receipt.status === "success" ? fmt.green("✓ payment executed") : fmt.red("✗ reverted"),
+            receipt.status === "success" ? fmt.green("✓ payment initiated") : fmt.red("✗ reverted"),
+            `  paymentId: ${paymentId.toString()}`,
             `  amount:    ${fmt.gold(formatUsdc(value))}`,
             `  to:        ${fmt.cyan(to)}`,
             opts.memo ? `  memo:      "${opts.memo}"` : "",
-            `  tx:        ${tx.txHash}`,
+            `  tx:        ${txHash}`,
             `  block:     ${receipt.blockNumber}`,
           ]
             .filter(Boolean)

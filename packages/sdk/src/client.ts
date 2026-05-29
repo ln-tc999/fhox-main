@@ -11,7 +11,7 @@ import {
   toHex,
 } from "viem";
 import { fhoxFactoryAbi, fhoxManagerAbi, erc20Abi, erc721Abi } from "./abis.js";
-import { FHENIX_NITROGEN_ADDRESSES } from "./chains.js";
+import { ARBITRUM_SEPOLIA_ADDRESSES } from "./chains.js";
 import { mapContractError } from "./errors.js";
 import type {
   Dispute,
@@ -34,9 +34,9 @@ export type FhoxClientConfig = {
   factory: Address;
   /** FhenixClient from @cofhe/sdk for client-side FHE encryption. */
   fhenixClient?: unknown;
-  /** Defaults to Fhenix Nitrogen's deployed USDC. */
+  /** Defaults to Arbitrum Sepolia's deployed USDC. */
   usdc?: Address;
-  /** Defaults to Fhenix Nitrogen's deployed IdentityRegistry. */
+  /** Defaults to Arbitrum Sepolia's deployed IdentityRegistry. */
   identityRegistry?: Address;
 };
 
@@ -71,8 +71,8 @@ export class FhoxClient {
     this.publicClient = cfg.publicClient;
     this.walletClient = cfg.walletClient;
     this.factory = getAddress(cfg.factory);
-    this.usdc = getAddress(cfg.usdc ?? FHENIX_NITROGEN_ADDRESSES.usdc);
-    this.identityRegistry = getAddress(cfg.identityRegistry ?? FHENIX_NITROGEN_ADDRESSES.identityRegistry);
+    this.usdc = getAddress(cfg.usdc ?? ARBITRUM_SEPOLIA_ADDRESSES.usdc);
+    this.identityRegistry = getAddress(cfg.identityRegistry ?? ARBITRUM_SEPOLIA_ADDRESSES.identityRegistry);
     this.fhenixClient = cfg.fhenixClient;
   }
 

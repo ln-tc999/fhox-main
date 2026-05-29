@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const UPSTREAM = process.env.FHENIX_RPC_URL ?? "https://api.nitrogen.fhenix.zone";
+const UPSTREAM = process.env.FHENIX_RPC_URL ?? "https://sepolia-rollup.arbitrum.io/rpc";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();

@@ -98,7 +98,7 @@ Cap values never appear in calldata, events, or storage in plaintext.
 
 - Node.js ≥ 20, pnpm 11.1.2
 - [Foundry](https://book.getfoundry.sh) (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
-- A funded Fhenix Nitrogen wallet ([faucet.nitrogen.fhenix.zone](https://faucet.nitrogen.fhenix.zone))
+- A funded Arbitrum Sepolia wallet (bridge SepoliaETH via [official bridge](https://bridge.helium.fhenix.zone/) or use any Arbitrum Sepolia faucet)
 
 ### 1. Install
 
@@ -118,15 +118,11 @@ pnpm contracts:test
 pnpm contracts:hardhat:test
 ```
 
-### 3. Deploy to Fhenix Nitrogen
+### 3. Deploy to Arbitrum Sepolia
 
 ```bash
-cp .env.example .env
-# fill in DEPLOYER_PRIVATE_KEY (testnet only)
-# set USDC_ADDRESS and IDENTITY_REGISTRY_ADDRESS if deploying against live contracts
-
-pnpm contracts:deploy:fhenix
-# writes packages/contracts/deployments/fhenix-nitrogen.json
+export $(grep -v '^#' .env | xargs) && pnpm contracts:deploy:arbitrum-sepolia
+# writes packages/contracts/deployments/arbitrum-sepolia.json
 ```
 
 ### 4. Run the demo app
@@ -134,12 +130,21 @@ pnpm contracts:deploy:fhenix
 ```bash
 cd apps/demo
 cp .env.local.example .env.local
-# set NEXT_PUBLIC_FACTORY_ADDRESS from step 3
+# set NEXT_PUBLIC_FHOX_FACTORY from step 3
 
 pnpm dev  # → http://localhost:3000
 ```
 
-Connect a MetaMask wallet on Fhenix Nitrogen (chainId 8008148), complete the formation wizard, and your agent has a legal identity and encrypted treasury.
+Connect a MetaMask wallet on Arbitrum Sepolia (chainId 421614), complete the formation wizard, and your agent has a legal identity and encrypted treasury.
+
+### Local development (Hardhat node)
+
+```bash
+cd packages/contracts
+npx hardhat node
+# in another terminal:
+export $(grep -v '^#' ../../.env | xargs) && npx hardhat run scripts/deploy.ts --network localhost
+```
 
 ---
 
@@ -148,12 +153,12 @@ Connect a MetaMask wallet on Fhenix Nitrogen (chainId 8008148), complete the for
 ```ts
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { FhoxClient, fhenixNitrogen } from "@fhox/sdk";
+import { FhoxClient, arbitrumSepolia } from "@fhox/sdk";
 import { FhenixClient } from "@cofhe/sdk";
 
 const account = privateKeyToAccount(process.env.AGENT_KEY as `0x${string}`);
-const publicClient  = createPublicClient({ chain: fhenixNitrogen, transport: http() });
-const walletClient  = createWalletClient({ account, chain: fhenixNitrogen, transport: http() });
+const publicClient  = createPublicClient({ chain: arbitrumSepolia, transport: http() });
+const walletClient  = createWalletClient({ account, chain: arbitrumSepolia, transport: http() });
 const fhenixClient  = new FhenixClient({ provider: publicClient });  // real FHE encryption
 
 const fhox = new FhoxClient({ publicClient, walletClient, factory: "0x...", fhenixClient });
@@ -192,9 +197,9 @@ await fhox.executePayment(manager, paymentId);
       "command": "npx",
       "args": ["-y", "@fhox/mcp"],
       "env": {
-        "FHOX_FACTORY": "0x...",
+        "FHOX_FACTORY": "0xEAfd45D5E7ECCF6014D91D9e3da39134C347f3A9",
         "AGENT_PRIVATE_KEY": "0x...",
-        "FHENIX_RPC_URL": "https://api.nitrogen.fhenix.zone"
+        "FHENIX_RPC_URL": "https://sepolia-rollup.arbitrum.io/rpc"
       }
     }
   }
@@ -205,15 +210,26 @@ Available tools: `fhox_form`, `fhox_pay`, `fhox_execute_payment`, `fhox_treasury
 
 ---
 
-## Fhenix Nitrogen
+## Arbitrum Sepolia (CoFHE testnet)
 
 | | |
 |---|---|
-| Chain ID | `8008148` |
-| RPC | `https://api.nitrogen.fhenix.zone` |
-| Explorer | `https://explorer.nitrogen.fhenix.zone` |
-| Faucet | `https://faucet.nitrogen.fhenix.zone` |
-| CoFHE Task Manager | `0xeA30c4B8b44078Bbf8a6ef5b9f1eC1626C7848D9` |
+| Chain ID | `421614` |
+| RPC | `https://sepolia-rollup.arbitrum.io/rpc` |
+| Block Explorer | `https://sepolia.arbiscan.io` |
+| CoFHE Task Manager | `0xeA30c4B8b44078Bbf8a6ef5b9f1eC1626C7848D9` (same on all CoFHE chains) |
+
+> **Note:** Fhenix originally launched its own L2 testnet (Helium/Nitrogen, chainId 8008135/8008148) but that testnet is now deprecated. Fhenix CoFHE now runs as a coprocessor on Arbitrum Sepolia, Ethereum Sepolia, and Base Sepolia. The SDK exports `arbitrumSepolia` from `viem/chains`.
+
+### Current deployment (2026-05-29)
+
+| Contract | Address |
+|---|---|
+| MockUSDC | `0x44b99f76f12e0Ece22f6bD76DcB305Afcf25876D` |
+| MockIdentityRegistry | `0x970C3114C5Dcf853692bc8D3e0598d1AC9D12185` |
+| FhoxFactory | `0xEAfd45D5E7ECCF6014D91D9e3da39134C347f3A9` |
+
+File: `packages/contracts/deployments/arbitrum-sepolia.json`
 
 ---
 

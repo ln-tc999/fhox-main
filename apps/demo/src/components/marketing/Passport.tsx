@@ -85,7 +85,7 @@ export function Passport() {
               <div className="gold-rule mt-10 mb-6 opacity-60" />
               <div className="flex items-center justify-between text-[10px] tracking-[0.32em] uppercase text-stone/80">
                 <span>Verified Entity</span>
-                <span className="text-gold/80">Fhenix Nitrogen · 8008148</span>
+                <span className="text-gold/80">Arbitrum Sepolia · 421614</span>
               </div>
             </div>
           </div>

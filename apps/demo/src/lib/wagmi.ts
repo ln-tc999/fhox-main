@@ -1,12 +1,12 @@
 import { http, createConfig } from "wagmi";
 import { injected } from "wagmi/connectors";
-import { fhenixNitrogen } from "@fhox/sdk";
+import { arbitrumSepolia } from "@fhox/sdk";
 
 export const wagmiConfig = createConfig({
-  chains: [fhenixNitrogen],
+  chains: [arbitrumSepolia],
   connectors: [injected()],
   transports: {
-    [fhenixNitrogen.id]: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "https://api.nitrogen.fhenix.zone"),
+    [arbitrumSepolia.id]: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "https://sepolia-rollup.arbitrum.io/rpc"),
   },
   ssr: true,
 });

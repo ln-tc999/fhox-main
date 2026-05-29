@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import type { Address } from "viem";
-import { fhenixNitrogen } from "@fhox/sdk";
+import { arbitrumSepolia } from "@fhox/sdk";
 import { FormHeader } from "@/components/form/FormHeader";
 import { FormationWizard } from "@/components/form/FormationWizard";
 import { Sealed } from "@/components/form/Sealed";
@@ -11,7 +11,7 @@ import { MyAgents } from "@/components/form/MyAgents";
 
 export default function FormPage() {
   const { isConnected, chainId } = useAccount();
-  const onArc = chainId === fhenixNitrogen.id;
+  const onFhox = chainId === arbitrumSepolia.id;
   const [formed, setFormed] = useState<{
     manager: Address;
     tokenId: bigint;
@@ -80,16 +80,16 @@ export default function FormPage() {
               to act on its behalf.
             </p>
           </div>
-        ) : !onArc ? (
+        ) : !onFhox ? (
           <div className="border border-red-500/40 bg-red-500/5 p-10 md:p-14">
             <p className="text-[11px] tracking-[0.48em] uppercase text-red-300 mb-5">
               Wrong Network
             </p>
             <h2 className="serif text-bone text-3xl md:text-4xl font-light mb-4">
-              Switch to Fhenix Nitrogen.
+              Switch to Arbitrum Sepolia.
             </h2>
             <p className="text-stone text-sm font-light">
-              CORPUS forms entities on Fhenix Nitrogen (chain 8008148). Use the switch button in the
+              FHOX forms entities on Arbitrum Sepolia (chain 421614). Use the switch button in the
               header.
             </p>
           </div>
@@ -110,8 +110,8 @@ export default function FormPage() {
       </section>
 
       <footer className="relative z-10 border-t border-gold/10 px-8 md:px-16 py-7 text-[10px] tracking-[0.32em] uppercase text-stone/50 flex flex-col md:flex-row gap-3 md:justify-between">
-        <span>FHOX · v0.1 · Fhenix Nitrogen</span>
-        <span>Agora Agents · Canteen × Circle × Arc</span>
+        <span>FHOX · v0.1 · Arbitrum Sepolia</span>
+        <span>Fhenix CoFHE · Canteen × Circle</span>
       </footer>
     </main>
   );

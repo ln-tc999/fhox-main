@@ -14,10 +14,8 @@ export function registerPolicyCommand(program: Command) {
       try {
         const c = makeClient();
         const dailyCapUsdc = parseUsdc(opts.cap);
-        const tx = await c.setPolicy(getAddress(manager), {
-          dailyCapUsdc,
-          allowlistOnly: opts.allowlistOnly,
-        });
+        const hasCap = dailyCapUsdc > 0n;
+        const tx = await c.setPolicy(getAddress(manager), dailyCapUsdc, hasCap, opts.allowlistOnly);
         const receipt = await tx.wait();
         if (isJsonMode()) {
           emit({

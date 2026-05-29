@@ -1,5 +1,5 @@
 export { FhoxClient, type FhoxClientConfig, type PayOptions, type FormOptions } from "./client.js";
-export { fhenixNitrogen, FHENIX_NITROGEN_ADDRESSES } from "./chains.js";
+export { arbitrumSepolia, ARBITRUM_SEPOLIA_ADDRESSES } from "./chains.js";
 export {
   type EntityMetadata,
   type PolicyView,

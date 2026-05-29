@@ -16,16 +16,19 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
-    // Local FHE emulation (Hardhat + Fhenix mock coprocessor)
     hardhat: {},
     localfhenix: {
       url: "http://localhost:42069",
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
     },
-    // Fhenix Nitrogen Testnet
-    fhenixNitrogen: {
-      url: process.env.FHENIX_RPC_URL ?? "https://api.nitrogen.fhenix.zone",
-      chainId: 8008148,
+    arbSepolia: {
+      url: process.env.ARBITRUM_SEPOLIA_RPC_URL ?? "https://sepolia-rollup.arbitrum.io/rpc",
+      chainId: 421614,
+      accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+    },
+    ethSepolia: {
+      url: process.env.SEPOLIA_RPC_URL ?? "https://ethereum-sepolia.publicnode.com",
+      chainId: 11155111,
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
     },
   },

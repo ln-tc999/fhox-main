@@ -41,12 +41,11 @@ export function registerWatchCommand(program: Command) {
                   blockNumber: p.blockNumber.toString(),
                   txHash: p.txHash,
                   counterparty: p.counterparty,
-                  amount: p.amount.toString(),
                   memoHash: p.memoHash,
                 });
               } else {
                 emit(
-                  `${fmt.dim("block " + p.blockNumber)} ${fmt.green("PAY")}     ${formatUsdc(p.amount)} → ${p.counterparty}`,
+                  `${fmt.dim("block " + p.blockNumber)} ${fmt.green("PAY")}     → ${p.counterparty}`,
                 );
               }
             }

@@ -1,0 +1,8 @@
+{
+  "network": "arbSepolia",
+  "chainId": 421614,
+  "factory": "0xEAfd45D5E7ECCF6014D91D9e3da39134C347f3A9",
+  "usdc": "0x44b99f76f12e0Ece22f6bD76DcB305Afcf25876D",
+  "identityRegistry": "0x970C3114C5Dcf853692bc8D3e0598d1AC9D12185",
+  "deployedAt": "2026-05-29T03:28:16.890Z"
+}

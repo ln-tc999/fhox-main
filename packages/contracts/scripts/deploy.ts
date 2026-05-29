@@ -5,13 +5,13 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("Deploying with:", deployer.address);
 
-  // Deploy mock USDC (replace with real address on production)
+  // Deploy mock USDC (replace with real stablecoin address for production)
   const MockUSDC = await ethers.getContractFactory("MockUSDC");
   const usdc = await MockUSDC.deploy();
   await usdc.waitForDeployment();
   console.log("MockUSDC:", await usdc.getAddress());
 
-  // Deploy mock IdentityRegistry (replace with real ERC-8004 on Arc/mainnet)
+  // Deploy mock IdentityRegistry (replace with real ERC-8004 for production)
   const MockIdentityRegistry = await ethers.getContractFactory("MockIdentityRegistry");
   const identityRegistry = await MockIdentityRegistry.deploy();
   await identityRegistry.waitForDeployment();
@@ -39,10 +39,10 @@ async function main() {
 
   const fs = await import("fs");
   fs.writeFileSync(
-    "deployments/fhenix-nitrogen.json",
+    "deployments/arbitrum-sepolia.json",
     JSON.stringify(deployments, null, 2)
   );
-  console.log("Deployment written to deployments/fhenix-nitrogen.json");
+  console.log("Deployment written to deployments/arbitrum-sepolia.json");
 }
 
 main().catch((err) => {

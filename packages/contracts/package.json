@@ -4,13 +4,13 @@
   "private": true,
   "description": "FHOX smart contracts — privacy-first Wyoming DAO LLC manager with Fhenix CoFHE encrypted treasury.",
   "scripts": {
-    "build": "forge build",
-    "test": "forge test -vv",
-    "test:gas": "forge test --gas-report",
-    "fmt": "forge fmt",
+    "build": "PATH=\"$HOME/.foundry/bin:$PATH\" forge build",
+    "test": "PATH=\"$HOME/.foundry/bin:$PATH\" forge test -vv",
+    "test:gas": "PATH=\"$HOME/.foundry/bin:$PATH\" forge test --gas-report",
+    "fmt": "PATH=\"$HOME/.foundry/bin:$PATH\" forge fmt",
     "hardhat:build": "npx hardhat compile",
     "hardhat:test": "npx hardhat test",
-    "deploy:fhenix-nitrogen": "npx hardhat run scripts/deploy.ts --network fhenixNitrogen",
+    "deploy:arbitrum-sepolia": "npx hardhat run scripts/deploy.ts --network arbSepolia",
     "deploy:localfhenix": "npx hardhat run scripts/deploy.ts --network localfhenix"
   },
   "dependencies": {

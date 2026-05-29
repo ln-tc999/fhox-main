@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { fhenixNitrogen } from "@fhox/sdk";
+import { arbitrumSepolia } from "@fhox/sdk";
 
 export function Header() {
   const { address, isConnected, connector, chainId } = useAccount();
@@ -9,11 +9,11 @@ export function Header() {
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
   const injected = connectors.find((c) => c.id === "injected");
-  const wrongChain = isConnected && chainId !== fhenixNitrogen.id;
+  const wrongChain = isConnected && chainId !== arbitrumSepolia.id;
 
-  const switchToArc = async () => {
+  const switchToFhox = async () => {
     try {
-      await switchChain({ chainId: fhenixNitrogen.id });
+      await switchChain({ chainId: arbitrumSepolia.id });
     } catch {
       // Chain not added yet — request MetaMask to add it
       try {
@@ -25,16 +25,16 @@ export function Header() {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId: "0x4cef52",
-              chainName: "Fhenix Nitrogen",
-              nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 18 },
-              rpcUrls: ["https://api.nitrogen.fhenix.zone"],
-              blockExplorerUrls: ["https://explorer.nitrogen.fhenix.zone"],
+              chainId: "0x66EED",
+              chainName: "Arbitrum Sepolia",
+              nativeCurrency: { name: "Ethereum", symbol: "ETH", decimals: 18 },
+              rpcUrls: ["https://sepolia-rollup.arbitrum.io/rpc"],
+              blockExplorerUrls: ["https://sepolia.arbiscan.io"],
             },
           ],
         });
       } catch (e) {
-        console.error("Failed to add Fhenix Nitrogen", e);
+        console.error("Failed to add Arbitrum Sepolia", e);
       }
     }
   };
@@ -44,7 +44,7 @@ export function Header() {
       <div className="flex items-baseline gap-3">
         <span className="serif text-2xl tracking-tight">CORPUS</span>
         <span className="text-xs uppercase tracking-widest text-ink/50">
-          legal bodies for agents · fhenix nitrogen
+          legal bodies for agents · arbitrum sepolia
         </span>
       </div>
       <div className="text-sm">
@@ -58,9 +58,9 @@ export function Header() {
         ) : wrongChain ? (
           <button
             className="px-4 py-2 bg-red-700 text-white hover:bg-red-800 transition"
-            onClick={switchToArc}
+            onClick={switchToFhox}
           >
-            Switch to Fhenix Nitrogen
+            Switch to Arbitrum Sepolia
           </button>
         ) : (
           <div className="flex items-center gap-4 font-mono text-xs">

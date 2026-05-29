@@ -11,7 +11,7 @@
     "contracts:test": "pnpm --filter @fhox/contracts test",
     "contracts:hardhat:build": "pnpm --filter @fhox/contracts hardhat:build",
     "contracts:hardhat:test": "pnpm --filter @fhox/contracts hardhat:test",
-    "contracts:deploy:fhenix": "pnpm --filter @fhox/contracts deploy:fhenix-nitrogen"
+    "contracts:deploy:arbitrum-sepolia": "pnpm --filter @fhox/contracts deploy:arbitrum-sepolia"
   },
   "packageManager": "pnpm@11.1.2",
   "engines": {

@@ -4,12 +4,12 @@
  *
  * Exposes every FhoxClient method as an MCP tool so any LLM agent (Claude, GPT,
  * etc) connected via MCP can form LLCs, run privacy-first treasury operations,
- * verify entities, and open/resolve disputes — all on Fhenix Nitrogen testnet.
+ * verify entities, and open/resolve disputes — all on Arbitrum Sepolia.
  *
  * Transport: stdio. Drop into Claude Desktop / Cursor / any MCP-aware host.
  *
  * Env required:
- *   FHENIX_RPC_URL       - Fhenix Nitrogen JSON-RPC URL
+ *   FHENIX_RPC_URL       - Arbitrum Sepolia JSON-RPC URL
  *   FHOX_FACTORY         - deployed FhoxFactory address
  *   AGENT_PRIVATE_KEY    - 0x-prefixed 64-char hex
  */
@@ -22,7 +22,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import {
   FhoxClient,
-  fhenixNitrogen,
+  arbitrumSepolia,
   fhenixWalletClient,
 } from "@fhox/sdk";
 import { type Address, type Hex, createPublicClient, getAddress, http, keccak256, toHex } from "viem";
@@ -40,7 +40,7 @@ function loadClient(): FhoxClient {
   if (!privateKey) missing.push("AGENT_PRIVATE_KEY");
   if (missing.length) throw new Error(`missing env: ${missing.join(", ")}`);
 
-  const publicClient = createPublicClient({ chain: fhenixNitrogen, transport: http(rpcUrl) });
+  const publicClient = createPublicClient({ chain: arbitrumSepolia, transport: http(rpcUrl) });
   const walletClient = fhenixWalletClient({ rpcUrl: rpcUrl!, privateKey: privateKey as Hex });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new FhoxClient({ publicClient: publicClient as any, walletClient, factory: getAddress(factory!) });
@@ -175,6 +175,8 @@ const tools = [
     handler: async (args: z.infer<typeof formSchema>) => {
       const c = loadClient();
       const principal = args.principal ? getAddress(args.principal) : c.address;
+      const dailyCapUsdc = parseUsdc(args.dailyCapUsdc);
+      const hasDailyCap = Boolean(args.dailyCapUsdc) && dailyCapUsdc > 0n;
       const result = await c.form({
         metadata: {
           legalName: args.legalName,
@@ -184,10 +186,9 @@ const tools = [
           operatingAgreementHash: args.operatingAgreementHash as Hex,
           formedAt: 0n,
         },
-        policy: {
-          dailyCapUsdc: parseUsdc(args.dailyCapUsdc),
-          allowlistOnly: args.allowlistOnly,
-        },
+        dailyCapUsdc,
+        hasDailyCap,
+        allowlistOnly: args.allowlistOnly,
         principal,
         mediator: getAddress(args.mediator),
         identityMetadataURI: args.identityMetadataURI,
@@ -216,7 +217,8 @@ const tools = [
       return ok({
         ...state,
         treasuryBalanceFormatted: formatUsdc(state.treasuryBalance),
-        todaySpentFormatted: formatUsdc(state.todaySpent),
+        hasDailyCap: state.policy.hasDailyCap,
+        allowlistOnly: state.policy.allowlistOnly,
       });
     },
   },
@@ -290,15 +292,16 @@ const tools = [
     }),
     handler: async (args: { manager: string; counterparty: string; amount: string; memo: string }) => {
       const c = loadClient();
-      const tx = await c.pay(
+      const { paymentId, txHash } = await c.pay(
         getAddress(args.manager) as Address,
         getAddress(args.counterparty) as Address,
         parseUsdc(args.amount),
         args.memo,
       );
-      const receipt = await tx.wait();
+      const receipt = await c.publicClient.waitForTransactionReceipt({ hash: txHash });
       return ok({
-        txHash: tx.txHash,
+        paymentId: paymentId.toString(),
+        txHash,
         blockNumber: receipt.blockNumber.toString(),
         status: receipt.status,
         memoHash: keccak256(toHex(args.memo)),
@@ -348,10 +351,9 @@ const tools = [
     }),
     handler: async (args: { manager: string; dailyCapUsdc: string; allowlistOnly: boolean }) => {
       const c = loadClient();
-      const tx = await c.setPolicy(getAddress(args.manager) as Address, {
-        dailyCapUsdc: parseUsdc(args.dailyCapUsdc),
-        allowlistOnly: args.allowlistOnly,
-      });
+      const dailyCapUsdc = parseUsdc(args.dailyCapUsdc);
+      const hasCap = dailyCapUsdc > 0n;
+      const tx = await c.setPolicy(getAddress(args.manager) as Address, dailyCapUsdc, hasCap, args.allowlistOnly);
       const r = await tx.wait();
       return ok({ txHash: tx.txHash, status: r.status });
     },

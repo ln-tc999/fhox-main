@@ -146,14 +146,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Strings__factory>;
     getContractFactory(
-      name: "CorpusFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CorpusFactory__factory>;
-    getContractFactory(
-      name: "CorpusManager",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CorpusManager__factory>;
-    getContractFactory(
       name: "FhoxFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FhoxFactory__factory>;
@@ -161,10 +153,6 @@ declare module "hardhat/types/runtime" {
       name: "FhoxManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FhoxManager__factory>;
-    getContractFactory(
-      name: "ICorpusManager",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ICorpusManager__factory>;
     getContractFactory(
       name: "IFhoxManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -348,16 +336,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Strings>;
     getContractAt(
-      name: "CorpusFactory",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CorpusFactory>;
-    getContractAt(
-      name: "CorpusManager",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CorpusManager>;
-    getContractAt(
       name: "FhoxFactory",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -367,11 +345,6 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.FhoxManager>;
-    getContractAt(
-      name: "ICorpusManager",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ICorpusManager>;
     getContractAt(
       name: "IFhoxManager",
       address: string | ethers.Addressable,
@@ -526,14 +499,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
     deployContract(
-      name: "CorpusFactory",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CorpusFactory>;
-    deployContract(
-      name: "CorpusManager",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CorpusManager>;
-    deployContract(
       name: "FhoxFactory",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.FhoxFactory>;
@@ -541,10 +506,6 @@ declare module "hardhat/types/runtime" {
       name: "FhoxManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.FhoxManager>;
-    deployContract(
-      name: "ICorpusManager",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ICorpusManager>;
     deployContract(
       name: "IFhoxManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -728,16 +689,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
     deployContract(
-      name: "CorpusFactory",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CorpusFactory>;
-    deployContract(
-      name: "CorpusManager",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CorpusManager>;
-    deployContract(
       name: "FhoxFactory",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -747,11 +698,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.FhoxManager>;
-    deployContract(
-      name: "ICorpusManager",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ICorpusManager>;
     deployContract(
       name: "IFhoxManager",
       args: any[],

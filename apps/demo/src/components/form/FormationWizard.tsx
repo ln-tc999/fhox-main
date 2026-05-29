@@ -12,7 +12,7 @@ import {
   http,
 } from "viem";
 import { useAccount, useChainId } from "wagmi";
-import { FhoxClient, fhenixNitrogen } from "@fhox/sdk";
+import { FhoxClient, arbitrumSepolia } from "@fhox/sdk";
 import { registerPasskey, passkeysSupported } from "@/lib/passkey";
 import { saveAgent } from "@/lib/agentStore";
 
@@ -64,7 +64,7 @@ export function FormationWizard({
     (async () => {
       try {
         const publicClient = createPublicClient({
-          chain: fhenixNitrogen,
+          chain: arbitrumSepolia,
           transport: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "/api/rpc"),
         });
         const client = new FhoxClient({
@@ -104,16 +104,16 @@ export function FormationWizard({
       const provider = await connector.getProvider();
       const walletClient = createWalletClient({
         account: address,
-        chain: fhenixNitrogen,
+        chain: arbitrumSepolia,
         // @ts-expect-error — EIP-1193 provider
         transport: custom(provider),
       });
       const publicClient = createPublicClient({
-        chain: fhenixNitrogen,
+        chain: arbitrumSepolia,
         transport: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "/api/rpc"),
       });
-      if (chainId !== fhenixNitrogen.id) {
-        throw new Error(`Wrong chain (${chainId}). Switch wallet to Fhenix Nitrogen (8008148).`);
+      if (chainId !== arbitrumSepolia.id) {
+        throw new Error(`Wrong chain (${chainId}). Switch wallet to Arbitrum Sepolia (421614).`);
       }
 
       const client = new FhoxClient({ publicClient, walletClient, factory: FACTORY });
@@ -310,8 +310,8 @@ export function FormationWizard({
               <Row k="allowlist_only" v={String(allowlistOnly)} />
               <Row k="principal" v={address ?? "—"} mono />
               <Row k="mediator" v={mediator || address || "—"} mono />
-              <Row k="privacy" v="FHE-encrypted · Fhenix" />
-              <Row k="identity" v="ERC-8004 · Fhenix Nitrogen" />
+              <Row k="privacy" v="FHE-encrypted · CoFHE" />
+              <Row k="identity" v="ERC-8004 · Arbitrum Sepolia" />
             </div>
 
             {passkeysSupported() && (

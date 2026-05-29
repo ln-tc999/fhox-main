@@ -16,15 +16,10 @@ export function registerStateCommand(program: Command) {
             ...s,
             identityTokenId: s.identityTokenId.toString(),
             treasuryBalance: s.treasuryBalance.toString(),
-            todaySpent: s.todaySpent.toString(),
             nextDisputeId: s.nextDisputeId.toString(),
             metadata: {
               ...s.metadata,
               formedAt: s.metadata.formedAt.toString(),
-            },
-            policy: {
-              dailyCapUsdc: s.policy.dailyCapUsdc.toString(),
-              allowlistOnly: s.policy.allowlistOnly,
             },
           });
           return;
@@ -50,10 +45,9 @@ export function registerStateCommand(program: Command) {
             "",
             fmt.bold("treasury"),
             `  balance:       ${fmt.gold(formatUsdc(s.treasuryBalance))}`,
-            `  today spent:   ${formatUsdc(s.todaySpent)}`,
             "",
             fmt.bold("policy"),
-            `  daily cap:     ${s.policy.dailyCapUsdc === 0n ? fmt.dim("(none)") : formatUsdc(s.policy.dailyCapUsdc)}`,
+            `  daily cap:     ${s.policy.hasDailyCap ? fmt.dim("(encrypted)") : fmt.dim("(none)")}`,
             `  allowlist:     ${s.policy.allowlistOnly ? fmt.yellow("required") : fmt.dim("open")}`,
             "",
             fmt.bold("disputes"),

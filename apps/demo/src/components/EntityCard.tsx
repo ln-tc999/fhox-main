@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { type Address, formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
-import { fhoxManagerAbi, FHENIX_NITROGEN_ADDRESSES } from "@fhox/sdk";
+import { fhoxManagerAbi, ARBITRUM_SEPOLIA_ADDRESSES } from "@fhox/sdk";
 
 export function EntityCard({ manager, tokenId }: { manager: Address; tokenId: bigint }) {
   const publicClient = usePublicClient();
@@ -47,7 +47,7 @@ export function EntityCard({ manager, tokenId }: { manager: Address; tokenId: bi
         <span className="text-ink/50">manager</span>
         <a
           className="truncate underline underline-offset-4"
-          href={`https://explorer.nitrogen.fhenix.zone/address/${manager}`}
+          href={`https://sepolia.arbiscan.io/address/${manager}`}
           target="_blank"
           rel="noreferrer"
         >
@@ -56,7 +56,7 @@ export function EntityCard({ manager, tokenId }: { manager: Address; tokenId: bi
         <span className="text-ink/50">erc-8004 token</span>
         <a
           className="underline underline-offset-4"
-          href={`https://explorer.nitrogen.fhenix.zone/token/${FHENIX_NITROGEN_ADDRESSES.identityRegistry}?a=${tokenId}`}
+          href={`https://sepolia.arbiscan.io/address/${ARBITRUM_SEPOLIA_ADDRESSES.identityRegistry}?a=${tokenId}`}
           target="_blank"
           rel="noreferrer"
         >

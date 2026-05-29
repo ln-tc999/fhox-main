@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type Address, createPublicClient, http } from "viem";
-import { fhenixNitrogen, fhoxManagerAbi } from "@fhox/sdk";
+import { arbitrumSepolia, fhoxManagerAbi } from "@fhox/sdk";
 import { PassportCard } from "./PassportCard";
 
 export function PassportLive({ manager }: { manager: Address }) {
@@ -14,7 +14,7 @@ export function PassportLive({ manager }: { manager: Address }) {
     (async () => {
       try {
         const client = createPublicClient({
-          chain: fhenixNitrogen,
+          chain: arbitrumSepolia,
           transport: http(process.env.NEXT_PUBLIC_FHENIX_RPC_URL ?? "/api/rpc"),
         });
         const id = (await client.readContract({

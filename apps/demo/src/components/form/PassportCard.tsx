@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { type Address, formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
-import { fhoxManagerAbi, FHENIX_NITROGEN_ADDRESSES } from "@fhox/sdk";
+import { fhoxManagerAbi, ARBITRUM_SEPOLIA_ADDRESSES } from "@fhox/sdk";
 
 type Metadata = { legalName: string; jurisdiction: string };
 
@@ -89,7 +89,7 @@ export function PassportCard({
             v={
               <a
                 className="underline underline-offset-[6px] decoration-gold/40 hover:decoration-gold transition-colors"
-                href={`https://explorer.nitrogen.fhenix.zone/address/${manager}`}
+                href={`https://sepolia.arbiscan.io/address/${manager}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -103,7 +103,7 @@ export function PassportCard({
             v={
               <a
                 className="underline underline-offset-[6px] decoration-gold/40 hover:decoration-gold transition-colors"
-                href={`https://explorer.nitrogen.fhenix.zone/token/${FHENIX_NITROGEN_ADDRESSES.identityRegistry}?a=${tokenId}`}
+                href={`https://sepolia.arbiscan.io/address/${ARBITRUM_SEPOLIA_ADDRESSES.identityRegistry}?a=${tokenId}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -136,7 +136,7 @@ export function PassportCard({
 
         <div className="mt-10 pt-6 border-t border-gold/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="text-[10px] tracking-[0.32em] uppercase text-stone">
-            <span className="text-gold/80">Sealed</span> · Fhenix Nitrogen · chain 8008148
+            <span className="text-gold/80">Sealed</span> · Arbitrum Sepolia · chain 421614
           </div>
           <Link
             href={`/passport/${manager}`}

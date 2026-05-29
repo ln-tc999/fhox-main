@@ -42,6 +42,7 @@ export function registerFormCommand(program: Command) {
         }
 
         const dailyCapUsdc = parseUsdc(String(rawOpts.dailyCap ?? "0"));
+        const hasDailyCap = Boolean(rawOpts.dailyCap) && dailyCapUsdc > 0n;
 
         const params = {
           metadata: {
@@ -52,10 +53,9 @@ export function registerFormCommand(program: Command) {
             operatingAgreementHash: rawOpts.oaHash as Hex,
             formedAt: 0n,
           },
-          policy: {
-            dailyCapUsdc,
-            allowlistOnly: Boolean(rawOpts.allowlistOnly),
-          },
+          dailyCapUsdc,
+          hasDailyCap,
+          allowlistOnly: Boolean(rawOpts.allowlistOnly),
           principal,
           mediator,
           identityMetadataURI: String(rawOpts.uri),

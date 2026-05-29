@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { fhenixNitrogen } from "@fhox/sdk";
+import { arbitrumSepolia } from "@fhox/sdk";
 
 export function FormHeader() {
   const { address, isConnected, connector, chainId } = useAccount();
@@ -11,11 +11,11 @@ export function FormHeader() {
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
   const injected = connectors.find((c) => c.id === "injected");
-  const wrongChain = isConnected && chainId !== fhenixNitrogen.id;
+  const wrongChain = isConnected && chainId !== arbitrumSepolia.id;
 
-  const switchToArc = async () => {
+  const switchToFhox = async () => {
     try {
-      await switchChain({ chainId: fhenixNitrogen.id });
+      await switchChain({ chainId: arbitrumSepolia.id });
     } catch {
       try {
         const provider = (await connector?.getProvider()) as
@@ -26,11 +26,11 @@ export function FormHeader() {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId: "0x4cef52",
-              chainName: "Fhenix Nitrogen",
-              nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 18 },
-              rpcUrls: ["https://api.nitrogen.fhenix.zone"],
-              blockExplorerUrls: ["https://explorer.nitrogen.fhenix.zone"],
+              chainId: "0x66EED",
+              chainName: "Arbitrum Sepolia",
+              nativeCurrency: { name: "Ethereum", symbol: "ETH", decimals: 18 },
+              rpcUrls: ["https://sepolia-rollup.arbitrum.io/rpc"],
+              blockExplorerUrls: ["https://sepolia.arbiscan.io"],
             },
           ],
         });
@@ -70,9 +70,9 @@ export function FormHeader() {
         ) : wrongChain ? (
           <button
             className="text-[11px] tracking-[0.32em] uppercase text-red-300 border border-red-500/60 hover:bg-red-500/10 px-6 py-3 transition-all"
-            onClick={switchToArc}
+            onClick={switchToFhox}
           >
-            Switch to Fhenix Nitrogen
+            Switch to Arbitrum Sepolia
           </button>
         ) : (
           <div className="flex items-center gap-5 font-mono text-[11px]">
