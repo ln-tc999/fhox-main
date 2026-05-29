@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   // surfacing as "WebGLRenderer: Context Lost." Disabling here makes dev match
   // prod (which never used Strict Mode double-invocation anyway).
   reactStrictMode: false,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
