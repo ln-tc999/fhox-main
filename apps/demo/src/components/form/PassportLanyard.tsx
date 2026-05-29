@@ -126,7 +126,8 @@ function CanvasCleanup() {
   const { gl } = useThree();
   useEffect(() => {
     return () => {
-      const cleanup = gl.userData.cleanup as (() => void) | undefined;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cleanup = (gl as any).userData.cleanup as (() => void) | undefined;
       cleanup?.();
       gl.dispose();
       // forceContextLoss frees the slot immediately rather than waiting on GC
