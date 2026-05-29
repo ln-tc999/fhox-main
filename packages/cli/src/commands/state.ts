@@ -27,7 +27,7 @@ export function registerStateCommand(program: Command) {
         const formed = new Date(Number(s.metadata.formedAt) * 1000).toISOString();
         emit(
           [
-            fmt.gold("━━━ CORPUS Entity ━━━"),
+            fmt.gold("━━━ FHOX Entity ━━━"),
             `${fmt.bold("manager:")}      ${fmt.cyan(s.manager)}`,
             "",
             fmt.bold("metadata"),

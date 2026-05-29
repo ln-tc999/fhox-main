@@ -6,7 +6,7 @@ import { emit, emitError, fmt, isJsonMode, parseUsdc } from "../output.js";
 export function registerFormCommand(program: Command) {
   program
     .command("form")
-    .description("form a new CORPUS entity (one tx, atomic: deploy + mint NFT + transfer to principal)")
+    .description("form a new FHOX entity (one tx, atomic: deploy + mint NFT + transfer to principal)")
     .requiredOption("--name <legalName>", 'legal name, e.g. "Loom Trading DAO LLC"')
     .option("--jurisdiction <code>", "ISO/state code", "WY")
     .option("--filing-id <id>", "Wyoming SOS filing ID, blank = protocol-only", "")
