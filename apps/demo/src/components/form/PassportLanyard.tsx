@@ -223,7 +223,7 @@ function Band({
       band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
       ang.copy(card.current.angvel() as unknown as THREE.Vector3);
       rot.copy(card.current.rotation() as unknown as THREE.Vector3);
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z } as THREE.Vector3, true);
     }
   });
 
