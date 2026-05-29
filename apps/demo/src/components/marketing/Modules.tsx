@@ -13,7 +13,7 @@ const MODULES = [
     n: "II",
     title: "Treasury",
     body:
-      "A programmable USDC wallet on Arc, with deterministic spending limits, allowlists, and signature policies the agent operates under.",
+      "A programmable USDC wallet on Arbitrum Sepolia, with deterministic spending limits, allowlists, and signature policies the agent operates under.",
   },
   {
     n: "III",

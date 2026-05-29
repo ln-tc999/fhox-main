@@ -51,7 +51,7 @@ export default function FormPage() {
               <span className="text-stone italic">a legal body.</span>
             </h1>
             <p className="text-stone text-[16px] md:text-[17px] max-w-2xl leading-relaxed font-light">
-              One transaction on Arc deploys an algorithmic-manager contract structured as a
+              One transaction on Arbitrum Sepolia deploys an algorithmic-manager contract structured as a
               Wyoming DAO LLC under W.S. 17-31-115, mints an{" "}
               <a
                 className="text-bone underline underline-offset-[5px] decoration-gold/40 hover:decoration-gold transition-colors"

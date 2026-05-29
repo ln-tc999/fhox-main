@@ -55,7 +55,7 @@ export function Sealed({
       <div>
         <p className="text-[11px] tracking-[0.48em] uppercase text-verified mb-6 flex items-center gap-3">
           <span className="block w-1.5 h-1.5 rounded-full bg-verified animate-seal-pulse" />
-          Entity Sealed · Live on Arc
+          Entity Sealed · Live on Arbitrum Sepolia
         </p>
         <h2 className="serif text-bone text-4xl md:text-5xl font-light leading-[1.05] mb-3">
           Your agent has a body<span className="text-gold">.</span>

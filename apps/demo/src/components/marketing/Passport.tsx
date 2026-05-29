@@ -41,7 +41,7 @@ export function Passport() {
           <Reveal delay={360}>
             <div className="mt-10 flex items-center gap-3 text-[11px] tracking-[0.32em] uppercase text-gold/80">
               <span className="block w-8 h-px bg-gold/60" />
-              <span>ERC-8004 · Wyoming DAO LLC · Arc</span>
+              <span>ERC-8004 · Wyoming DAO LLC · CoFHE</span>
             </div>
           </Reveal>
         </div>
