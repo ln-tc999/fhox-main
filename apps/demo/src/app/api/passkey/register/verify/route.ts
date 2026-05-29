@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       challenge: challenge as `0x${string}`,
       origin: originFor(req),
       rpId: rpIdFor(req),
-    }) as { id: string; publicKey: string; aaguid?: string };
+    }) as unknown as { id: string; publicKey: string; aaguid?: string };
 
     const res = NextResponse.json({
       id: result.id,
