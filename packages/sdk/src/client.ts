@@ -144,6 +144,11 @@ export class FhoxClient {
       });
 
       const receipt = await this.publicClient.waitForTransactionReceipt({ hash: txHash });
+      if (receipt.status === "reverted") {
+        throw new Error(
+          `Transaction reverted. Check that the name is not taken and wallet has ETH for gas. Tx: ${txHash}`,
+        );
+      }
       const logs = parseEventLogs({
         abi: fhoxFactoryAbi,
         eventName: "FhoxFormed",
