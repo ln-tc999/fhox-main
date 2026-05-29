@@ -1,5 +1,4 @@
 {
-  "rootDirectory": "apps/demo",
   "buildCommand": "pnpm --filter @fhox/demo build",
   "framework": "nextjs"
 }
