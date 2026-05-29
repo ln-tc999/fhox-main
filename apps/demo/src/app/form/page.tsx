@@ -111,7 +111,7 @@ export default function FormPage() {
 
       <footer className="relative z-10 border-t border-gold/10 px-8 md:px-16 py-7 text-[10px] tracking-[0.32em] uppercase text-stone/50 flex flex-col md:flex-row gap-3 md:justify-between">
         <span>FHOX · v0.1 · Arbitrum Sepolia</span>
-        <span>Fhenix CoFHE · Canteen × Circle</span>
+        <span>Fhenix CoFHE · Arbitrum Sepolia · USDC</span>
       </footer>
     </main>
   );

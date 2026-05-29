@@ -3,12 +3,11 @@
 import { Reveal } from "./Reveal";
 
 const PARTNERS = [
-  { name: "Arc", role: "Settlement" },
-  { name: "Circle", role: "Programmable Wallets" },
+  { name: "Arbitrum Sepolia", role: "L2 Settlement" },
+  { name: "CoFHE", role: "FHE Privacy" },
   { name: "USDC", role: "Treasury" },
   { name: "ERC-8004", role: "Identity" },
   { name: "Wyoming", role: "Jurisdiction" },
-  { name: "Canteen", role: "Infrastructure" },
 ];
 
 export function Stack() {
