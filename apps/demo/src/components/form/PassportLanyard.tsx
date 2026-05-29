@@ -77,7 +77,8 @@ function PassportLanyardImpl(props: LanyardProps) {
           canvas.addEventListener("webglcontextrestored", onRestored, false);
           // R3F doesn't expose a teardown hook tied to onCreated, so dispose
           // the renderer + listeners via the Three.js dispose chain below.
-          gl.userData.cleanup = () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (gl as any).userData.cleanup = () => {
             canvas.removeEventListener("webglcontextlost", onLost);
             canvas.removeEventListener("webglcontextrestored", onRestored);
           };
