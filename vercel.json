@@ -1,5 +1,0 @@
-{
-  "rootDirectory": "apps/demo",
-  "buildCommand": "pnpm run build",
-  "framework": "nextjs"
-}
