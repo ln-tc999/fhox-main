@@ -18,7 +18,7 @@ import { saveAgent } from "@/lib/agentStore";
 
 type Step = 1 | 2 | 3 | 4;
 
-const FACTORY = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS ?? "") as Address;
+const FACTORY = (process.env.NEXT_PUBLIC_FHOX_FACTORY ?? "") as Address;
 
 const STEPS: { n: string; label: string }[] = [
   { n: "I", label: "Entity" },
@@ -94,7 +94,7 @@ export function FormationWizard({
     if (!address) return setError("Wallet not connected.");
     if (!connector) return setError("No connector.");
     if (!factoryReady) {
-      return setError("NEXT_PUBLIC_FACTORY_ADDRESS is not set. Deploy the factory first.");
+      return setError("NEXT_PUBLIC_FHOX_FACTORY is not set. Deploy the factory first.");
     }
     setSubmitting(true);
     setError(null);
@@ -369,7 +369,7 @@ export function FormationWizard({
 
             {!factoryReady && (
               <div className="mt-8 px-4 py-3 border border-red-500/40 bg-red-500/5 text-red-300 text-[12px] font-mono">
-                NEXT_PUBLIC_FACTORY_ADDRESS not configured. Deploy first.
+                NEXT_PUBLIC_FHOX_FACTORY not configured. Deploy first.
               </div>
             )}
             {error && (
