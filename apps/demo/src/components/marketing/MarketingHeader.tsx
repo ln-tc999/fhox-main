@@ -25,7 +25,7 @@ export function MarketingHeader() {
           />
         </span>
         <span className="serif text-bone text-xl tracking-[0.42em] font-light">
-          CORPUS
+          FHOX
         </span>
       </Link>
 

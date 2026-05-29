@@ -15,7 +15,7 @@
   --behind-glow-size: 35%;
   --inner-gradient: linear-gradient(145deg, rgba(22, 17, 13, 0.95) 0%, rgba(10, 8, 7, 0.95) 100%);
 
-  /* CORPUS gold-toned sunpillars — replaces the rainbow holographic */
+  /* FHOX gold-toned sunpillars — replaces the rainbow holographic */
   --sunpillar-1: hsl(40, 65%, 70%);
   --sunpillar-2: hsl(45, 70%, 65%);
   --sunpillar-3: hsl(38, 50%, 78%);

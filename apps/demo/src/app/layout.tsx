@@ -19,9 +19,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CORPUS — The legal body for AI agents",
+  title: "FHOX — The legal body for AI agents",
   description:
-    "CORPUS provides AI agents with a legal identity that exists, acts, and endures in the real world.",
+    "FHOX provides AI agents with a legal identity that exists, acts, and endures in the real world.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

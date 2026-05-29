@@ -42,7 +42,7 @@ export function Header() {
   return (
     <header className="border-b border-ink/10 px-8 py-5 flex items-center justify-between">
       <div className="flex items-baseline gap-3">
-        <span className="serif text-2xl tracking-tight">CORPUS</span>
+        <span className="serif text-2xl tracking-tight">FHOX</span>
         <span className="text-xs uppercase tracking-widest text-ink/50">
           legal bodies for agents · arbitrum sepolia
         </span>

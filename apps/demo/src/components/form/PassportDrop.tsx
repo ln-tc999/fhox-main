@@ -37,7 +37,7 @@ export function PassportDrop({
 
           <div className="passport-rubric">
             <span className="dot" />
-            <span>CORPUS PASSPORT</span>
+            <span>FHOX PASSPORT</span>
             <span className="dot" />
           </div>
 

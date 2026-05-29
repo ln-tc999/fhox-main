@@ -364,7 +364,7 @@ function usePassportTexture({
     ctx.font = "300 18px 'Cormorant Garamond', Garamond, serif";
     ctx.textAlign = "center";
     ctx.letterSpacing = "0.42em";
-    ctx.fillText("CORPUS PASSPORT", W / 2, 92);
+    ctx.fillText("FHOX PASSPORT", W / 2, 92);
 
     // hairline rule
     ctx.fillStyle = "#c8a45d";
@@ -411,7 +411,7 @@ function usePassportTexture({
     ctx.fillText("ARBITRUM SEPOLIA · CHAIN 421614", W / 2, H - 70);
     ctx.fillStyle = "rgba(244,239,231,0.5)";
     ctx.font = "300 10px ui-monospace, Menlo, monospace";
-    ctx.fillText("ERC-8004 · WYOMING · CORPUS V0.1", W / 2, H - 50);
+    ctx.fillText("ERC-8004 · WYOMING · FHOX V0.1", W / 2, H - 50);
 
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -457,7 +457,7 @@ function drawField(
   ctx.fillText(value, cx, cy + 28);
 }
 
-/** Abstracted vessel/chalice mark — bone white with gold spine, evoking the CORPUS logo. */
+/** Abstracted vessel/chalice mark — bone white with gold spine, evoking the FHOX logo. */
 function drawVessel(ctx: CanvasRenderingContext2D, cx: number, cy: number, h: number) {
   ctx.save();
   ctx.translate(cx, cy);

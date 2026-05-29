@@ -55,7 +55,7 @@ export function Modules() {
 
         <Reveal delay={240}>
           <p className="mt-8 text-stone max-w-2xl text-[16px] font-light leading-relaxed">
-            CORPUS is not a wrapper. It is the operating anatomy that turns an autonomous model
+            FHOX is not a wrapper. It is the operating anatomy that turns an autonomous model
             into a counterparty the law can recognize.
           </p>
         </Reveal>

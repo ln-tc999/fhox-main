@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const { challenge, options } = Registration.getOptions({
     user: { name, displayName },
-    rp: { id: rpId, name: "CORPUS" },
+    rp: { id: rpId, name: "FHOX" },
     authenticatorSelection: {
       residentKey: "preferred",
       userVerification: "preferred",

@@ -48,7 +48,7 @@ export function Hero() {
         >
           <Image
             src="/fhox-logo.png"
-            alt="CORPUS"
+            alt="FHOX"
             fill
             sizes="(min-width: 768px) 240px, 200px"
             className="object-contain"
@@ -72,7 +72,7 @@ export function Hero() {
           className="serif text-bone text-5xl md:text-7xl font-light tracking-[0.32em] mt-10 pl-[0.32em]"
           style={{ animation: "fadeUp 1.4s cubic-bezier(0.16,1,0.3,1) 0.35s both" }}
         >
-          CORPUS
+          FHOX
         </h1>
 
         <span
@@ -99,7 +99,7 @@ export function Hero() {
           className="mt-7 text-stone text-base md:text-[17px] max-w-xl text-center leading-relaxed font-light"
           style={{ animation: "fadeUp 1.4s cubic-bezier(0.16,1,0.3,1) 1.05s both" }}
         >
-          <span className="text-bone tracking-[0.18em] text-[13px]">CORPUS</span>{" "}
+          <span className="text-bone tracking-[0.18em] text-[13px]">FHOX</span>{" "}
           provides AI agents with a legal identity that
           <br className="hidden md:block" />
           exists, acts, and endures in the real world.

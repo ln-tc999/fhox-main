@@ -53,7 +53,7 @@ export function FormHeader() {
             priority
           />
         </span>
-        <span className="serif text-bone text-xl tracking-[0.42em] font-light">CORPUS</span>
+        <span className="serif text-bone text-xl tracking-[0.42em] font-light">FHOX</span>
         <span className="hidden md:inline-block text-[10px] tracking-[0.32em] uppercase text-gold/60 ml-3 pl-3 border-l border-gold/20">
           Formation
         </span>
