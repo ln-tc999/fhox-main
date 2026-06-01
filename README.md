@@ -5,6 +5,7 @@
 FHOX is a privacy-by-design protocol built on **Fhenix CoFHE**. One transaction atomically forms a Wyoming DAO LLC for an AI agent: deploys an algorithmic-manager contract, mints an ERC-8004 identity NFT, and opens a USDC treasury whose payment amounts and spending totals are **FHE-encrypted on-chain** — observers see *that* a payment occurred, never *how much*.
 
 Built for the [Fhenix Privacy-by-Design Buildathon](https://cofhe-docs.fhenix.zone).
+
 Demo live : https://fhox-app.vercel.app/
 
 ---
